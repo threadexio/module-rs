@@ -1,0 +1,16 @@
+[package]
+name = "module_derive"
+version = "0.0.0"
+edition = "2024"
+description = '''
+Derive macros for the `module` crate.
+'''
+license = "MIT"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+
+[lints]
+workspace = true
