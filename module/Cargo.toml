@@ -14,5 +14,7 @@ serde = { version = "1", features = ["derive"], optional = true }
 std = []
 serde = ["dep:serde"]
 
+default = ["std"]
+
 [lints]
 workspace = true
