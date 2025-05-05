@@ -4,6 +4,7 @@ members = ["module", "module_derive"]
 default-members = ["module"]
 
 [workspace.lints.rust]
+missing_docs = "warn"
 arithmetic_overflow = "warn"
 missing_debug_implementations = "warn"
 unexpected_cfgs = "allow"

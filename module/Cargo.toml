@@ -8,6 +8,11 @@ Modular NixOS-style configuration library.
 license = "MIT"
 
 [dependencies]
+serde = { version = "1", features = ["derive"], optional = true }
+
+[features]
+std = []
+serde = ["dep:serde"]
 
 [lints]
 workspace = true
