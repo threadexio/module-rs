@@ -1,3 +1,7 @@
+//! Overridable values.
+//!
+//! See: [`Overridable`].
+
 use core::borrow::{Borrow, BorrowMut};
 use core::cmp::Ordering;
 use core::convert::{AsMut, AsRef};

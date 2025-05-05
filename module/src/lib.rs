@@ -36,8 +36,9 @@ extern crate std;
 mod error;
 mod impls;
 mod merge;
-mod overridable;
 
 pub use self::error::{Context, Error};
 pub use self::merge::Merge;
-pub use self::overridable::{Overridable, Priority};
+
+pub mod overridable;
+pub use self::overridable::Overridable;
