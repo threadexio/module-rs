@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["module", "module_derive"]
+members = ["module", "module-derive"]
 default-members = ["module"]
 
 [workspace.lints.rust]
