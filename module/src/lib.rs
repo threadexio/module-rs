@@ -44,5 +44,4 @@ pub use self::merge::Merge;
 #[cfg(feature = "derive")]
 pub use module_derive::Merge;
 
-pub mod overridable;
-pub use self::overridable::Overridable;
+pub mod types;
