@@ -62,3 +62,26 @@ where
         Ok(self)
     }
 }
+
+unmergeable! {
+    Box<core::ffi::CStr>, Box<str>,
+    alloc::ffi::CString,
+    alloc::string::String
+}
+
+impl<T> Merge for Box<[T]> {
+    unmergeable!();
+}
+
+impl<T> Merge for alloc::borrow::Cow<'_, T>
+where
+    T: ?Sized + alloc::borrow::ToOwned,
+    T::Owned: Merge,
+{
+    fn merge(self, other: Self) -> Result<Self, Error> {
+        let a = self.into_owned();
+        let b = other.into_owned();
+
+        a.merge(b).map(Self::Owned)
+    }
+}

@@ -1,6 +1,8 @@
 use core::cmp::Eq;
 use core::hash::{BuildHasher, Hash};
 
+use alloc::boxed::Box;
+
 use std::collections::{HashMap, HashSet};
 
 use super::prelude::*;
@@ -39,4 +41,10 @@ where
         self.extend(other);
         Ok(self)
     }
+}
+
+unmergeable! {
+    Box<std::ffi::OsStr>, Box<std::path::Path>,
+    std::ffi::OsString, std::path::PathBuf,
+    std::time::SystemTime
 }
