@@ -29,6 +29,7 @@
 
 #![no_std]
 extern crate alloc;
+extern crate self as module;
 
 #[cfg(feature = "std")]
 extern crate std;
@@ -39,6 +40,9 @@ mod merge;
 
 pub use self::error::{Context, Error};
 pub use self::merge::Merge;
+
+#[cfg(feature = "derive")]
+pub use module_derive::Merge;
 
 pub mod overridable;
 pub use self::overridable::Overridable;

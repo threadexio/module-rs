@@ -8,10 +8,12 @@ Modular NixOS-style configuration library.
 license = "MIT"
 
 [dependencies]
+module-derive = { version = "0.0.0", path = "../module-derive", optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
 
 [features]
 std = []
+derive = ["dep:module-derive"]
 serde = ["dep:serde"]
 
 default = ["std"]
