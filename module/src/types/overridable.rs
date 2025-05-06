@@ -80,7 +80,7 @@ impl<T> Merge for Overridable<T> {
     fn merge(self, other: Self) -> Result<Self, Error> {
         match self.priority.cmp(&other.priority) {
             Ordering::Less => Ok(self),
-            Ordering::Greater => Ok(self),
+            Ordering::Greater => Ok(other),
             Ordering::Equal => Err(Error::collision()),
         }
     }
@@ -163,5 +163,46 @@ mod serde_impl {
         {
             <Repr<T> as Deserialize>::deserialize(deserializer).map(Into::into)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct Merged(bool);
+
+    impl Merge for Merged {
+        fn merge(self, _: Self) -> Result<Self, Error> {
+            Ok(Self(true))
+        }
+    }
+
+    #[inline]
+    fn x<T>(value: T, priority: isize) -> Overridable<T> {
+        Overridable::with_priority(value, priority)
+    }
+
+    #[test]
+    fn test_commutative() {
+        let a = x(42, 10);
+        let b = x(32, 9);
+
+        assert_eq!(*a.merge(b).unwrap(), 32);
+        assert_eq!(*b.merge(a).unwrap(), 32);
+    }
+
+    #[test]
+    fn test_same_priority() {
+        assert_eq!(x(1, 10).merge(x(2, 10)).unwrap_err(), Error::collision());
+    }
+
+    #[test]
+    fn test_no_inner_merge() {
+        let a = x(Merged(false), 10);
+        let b = x(Merged(false), 9);
+
+        let c = a.merge(b).unwrap();
+        assert!(!c.0);
     }
 }

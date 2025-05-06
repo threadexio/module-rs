@@ -1,4 +1,5 @@
 use core::fmt;
+use core::mem::discriminant;
 
 use alloc::boxed::Box;
 use alloc::collections::LinkedList;
@@ -46,15 +47,6 @@ pub struct Error {
 enum ErrorType {
     Collision,
     Custom(Box<dyn fmt::Display>),
-}
-
-impl fmt::Debug for ErrorType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Collision => write!(f, "Collision"),
-            Self::Custom(x) => write!(f, "Custom(\"{x}\")"),
-        }
-    }
 }
 
 impl Error {
@@ -136,6 +128,15 @@ impl<T> Context for core::result::Result<T, Error> {
     }
 }
 
+impl fmt::Debug for ErrorType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Collision => write!(f, "Collision"),
+            Self::Custom(x) => write!(f, "Custom(\"{x}\")"),
+        }
+    }
+}
+
 impl fmt::Debug for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         struct DisplayToDebugAdapter<T>(T);
@@ -207,3 +208,19 @@ impl fmt::Display for Error {
 }
 
 impl core::error::Error for Error {}
+
+impl PartialEq for ErrorType {
+    fn eq(&self, other: &Self) -> bool {
+        discriminant(self) == discriminant(other)
+    }
+}
+
+impl Eq for ErrorType {}
+
+impl PartialEq for Error {
+    fn eq(&self, other: &Self) -> bool {
+        self.typ == other.typ
+    }
+}
+
+impl Eq for Error {}

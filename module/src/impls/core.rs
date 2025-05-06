@@ -33,18 +33,6 @@ where
     }
 }
 
-impl<T> Merge for Option<T>
-where
-    T: Merge,
-{
-    fn merge(self, other: Self) -> Result<Self, Error> {
-        match (self, other) {
-            (Some(a), Some(b)) => a.merge(b).map(Some),
-            (x, None) | (None, x) => Ok(x),
-        }
-    }
-}
-
 impl<T> Merge for core::marker::PhantomData<T> {
     fn merge(self, _: Self) -> Result<Self, Error> {
         Ok(Self)
@@ -69,4 +57,29 @@ impl<T> Merge for core::ops::RangeTo<T> {
 
 impl<T, E> Merge for core::result::Result<T, E> {
     unmergeable!();
+}
+
+impl<T> Merge for Option<T>
+where
+    T: Merge,
+{
+    fn merge(self, other: Self) -> Result<Self, Error> {
+        match (self, other) {
+            (Some(a), Some(b)) => a.merge(b).map(Some),
+            (x, None) | (None, x) => Ok(x),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_option() {
+        assert_eq!(Some(42).merge(Some(32)).unwrap_err(), Error::collision());
+        assert_eq!(None.merge(Some(42)).unwrap(), Some(42));
+        assert_eq!(Some(42).merge(None).unwrap(), Some(42));
+        assert_eq!(Option::<i32>::None.merge(None).unwrap(), None);
+    }
 }
