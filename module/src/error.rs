@@ -90,7 +90,7 @@ impl Error {
     /// # Example
     ///
     /// ```no_run
-    /// use module::Context;
+    /// use module::{Merge, Context};
     /// # let a: i32 = 0;
     /// # let b: i32 = 1;
     /// let err = a.merge(b).module("module A").unwrap_err();
