@@ -38,7 +38,7 @@ mod error;
 mod impls;
 mod merge;
 
-pub use self::error::{Context, Error};
+pub use self::error::Error;
 pub use self::merge::Merge;
 
 #[cfg(feature = "derive")]
