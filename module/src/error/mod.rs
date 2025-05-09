@@ -1,3 +1,7 @@
+//! [`Error`] for [`Merge`].
+//!
+//! [`Merge`]: crate::Merge
+
 use core::fmt::{self, Debug, Display};
 use core::mem::discriminant;
 

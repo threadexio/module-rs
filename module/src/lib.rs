@@ -41,8 +41,7 @@ pub mod error;
 pub use self::error::Error;
 
 pub mod merge;
-pub use self::merge::Merge;
-pub use self::merge::merge;
+pub use self::merge::{Merge, merge};
 
 #[cfg(feature = "derive")]
 pub use module_derive::Merge;

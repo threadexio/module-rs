@@ -1,3 +1,5 @@
+//! Error [`Trace`].
+
 use core::fmt::{self, Display};
 use core::iter::FusedIterator;
 
@@ -6,20 +8,29 @@ use alloc::collections::linked_list::{self, LinkedList};
 
 type Item = dyn Display + Send + Sync + 'static;
 
+/// A backtrace-like structure to store traces.
 pub struct Trace(LinkedList<Box<Item>>);
 
 impl Trace {
+    /// Create a new empty [`Trace`].
     pub fn new() -> Self {
         Self(LinkedList::new())
     }
 
-    pub fn add<D>(&mut self, module: D)
+    /// Add a `trace`.
+    pub fn add<D>(&mut self, trace: D)
     where
         D: Display + Send + Sync + 'static,
     {
-        self.0.push_front(Box::new(module));
+        self.0.push_front(Box::new(trace));
     }
 
+    /// Get an iterator over all traces.
+    ///
+    /// The returned iterator iterates over all traces in the reverse order they
+    /// were [`add`]ed.
+    ///
+    /// [`add`]: Trace::add
     pub fn iter(&self) -> Iter<'_> {
         Iter(self.0.iter())
     }
@@ -44,6 +55,15 @@ impl fmt::Debug for Trace {
     }
 }
 
+impl Default for Trace {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// Iterator for [`Trace`].
+///
+/// See: [`Trace::iter`].
 pub struct Iter<'a>(linked_list::Iter<'a, Box<Item>>);
 
 impl fmt::Debug for Iter<'_> {
