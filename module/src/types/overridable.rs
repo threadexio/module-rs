@@ -77,10 +77,13 @@ impl<T, const DEFAULT: isize> Overridable<T, DEFAULT> {
 }
 
 impl<T> Merge for Overridable<T> {
-    fn merge(self, other: Self) -> Result<Self, Error> {
+    fn merge_ref(&mut self, other: Self) -> Result<(), Error> {
         match self.priority.cmp(&other.priority) {
-            Ordering::Less => Ok(self),
-            Ordering::Greater => Ok(other),
+            Ordering::Less => Ok(()),
+            Ordering::Greater => {
+                *self = other;
+                Ok(())
+            }
             Ordering::Equal => Err(Error::collision()),
         }
     }
@@ -173,8 +176,9 @@ mod tests {
     struct Merged(bool);
 
     impl Merge for Merged {
-        fn merge(self, _: Self) -> Result<Self, Error> {
-            Ok(Self(true))
+        fn merge_ref(&mut self, _: Self) -> Result<(), Error> {
+            self.0 = true;
+            Ok(())
         }
     }
 
@@ -184,12 +188,21 @@ mod tests {
     }
 
     #[test]
-    fn test_commutative() {
+    fn test_commutative_ab() {
         let a = x(42, 10);
         let b = x(32, 9);
 
-        assert_eq!(*a.merge(b).unwrap(), 32);
-        assert_eq!(*b.merge(a).unwrap(), 32);
+        let c = a.merge(b).unwrap();
+        assert_eq!(*c, 32);
+    }
+
+    #[test]
+    fn test_commutative_ba() {
+        let a = x(42, 10);
+        let b = x(32, 9);
+
+        let c = b.merge(a).unwrap();
+        assert_eq!(*c, 32);
     }
 
     #[test]

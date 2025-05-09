@@ -1,7 +1,10 @@
 [workspace]
 resolver = "2"
-members = ["module", "module-derive"]
 default-members = ["module"]
+members = [
+  "module",
+  "module-derive",
+]
 
 [workspace.lints.rust]
 missing_docs = "warn"

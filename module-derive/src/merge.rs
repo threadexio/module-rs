@@ -70,60 +70,85 @@ pub fn merge(item: TokenStream) -> TokenStream {
         },
     };
 
-    let mut output = quote! {
-        impl #generics ::module::Merge for #ident #generics
-        #where_clause
-    };
+    let mut impl_contents = proc_macro2::TokenStream::new();
 
     match fields {
         Fields::Unit => quote! {
-            {
-                fn merge(self, other: Self) -> Result<Self, ::module::Error> {
-                    Ok(Self)
-                }
+            fn merge(self, _other: Self) -> Result<Self, ::module::Error> {
+                Ok(Self)
+            }
+
+            fn merge_ref(&mut self, _other: Self) -> Result<(), ::module::Error> {
+                Ok(())
             }
         },
         Fields::Unnamed(FieldsUnnamed { unnamed, .. }) => {
-            let fields: Punctuated<proc_macro2::TokenStream, Token![,]> = unnamed
-                .iter()
-                .enumerate()
-                .map(|(i, _)| Index::from(i))
-                .map(|i| {
-                    quote! {
-                        self.#i.merge(other.#i)?
-                    }
-                })
-                .collect();
+            let mut merge_fields: Punctuated<_, Token![,]> = Punctuated::new();
+            let mut merge_ref_fields = proc_macro2::TokenStream::new();
+
+            for field in unnamed.iter().enumerate().map(|(i, _)| Index::from(i)) {
+                let name = field.to_token_stream().to_string();
+
+                merge_fields.push(quote! {
+                    self.#field.merge(other.#field).value(#name)?
+                });
+
+                merge_ref_fields.extend(quote! {
+                    self.#field.merge_ref(other.#field).value(#name)?;
+                });
+            }
 
             quote! {
-                {
-                    fn merge(self, other: Self) -> Result<Self, ::module::Error> {
-                        Ok(Self(#fields))
-                    }
+                fn merge(self, other: Self) -> Result<Self, ::module::Error> {
+                    use ::module::error::Context as _;
+                    Ok(Self(#merge_fields))
+                }
+
+                fn merge_ref(&mut self, other: Self) -> Result<(), ::module::Error> {
+                    use ::module::error::Context as _;
+                    #merge_ref_fields
+                    Ok(())
                 }
             }
         }
         Fields::Named(FieldsNamed { named, .. }) => {
-            let fields: Punctuated<proc_macro2::TokenStream, Token![,]> = named
-                .iter()
-                .map(|x| x.ident.clone().unwrap())
-                .map(|x| {
-                    quote! {
-                        #x: self.#x.merge(other.#x)?
-                    }
-                })
-                .collect();
+            let mut merge_fields: Punctuated<_, Token![,]> = Punctuated::new();
+            let mut merge_ref_fields = proc_macro2::TokenStream::new();
+
+            for field in named.iter().map(|x| x.ident.clone().unwrap()) {
+                let name = field.to_token_stream().to_string();
+
+                merge_fields.push(quote! {
+                    #field: self.#field.merge(other.#field).value(#name)?
+                });
+
+                merge_ref_fields.extend(quote! {
+                    self.#field.merge_ref(other.#field).value(#name)?;
+                });
+            }
 
             quote! {
-                {
-                    fn merge(self, other: Self) -> Result<Self, ::module::Error> {
-                        Ok(Self { #fields })
-                    }
+                fn merge(self, other: Self) -> Result<Self, ::module::Error> {
+                    use ::module::error::Context as _;
+                    Ok(Self { #merge_fields })
+                }
+
+                fn merge_ref(&mut self, other: Self) -> Result<(), ::module::Error> {
+                    use ::module::error::Context as _;
+                    #merge_ref_fields
+                    Ok(())
                 }
             }
         }
     }
-    .to_tokens(&mut output);
+    .to_tokens(&mut impl_contents);
 
-    output.into()
+    quote! {
+        impl #generics ::module::Merge for #ident #generics
+        #where_clause
+        {
+            #impl_contents
+        }
+    }
+    .into()
 }

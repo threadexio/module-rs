@@ -28,18 +28,21 @@
 //! [`Vec`]: alloc::vec::Vec
 
 #![no_std]
+#[macro_use]
 extern crate alloc;
 extern crate self as module;
 
 #[cfg(feature = "std")]
 extern crate std;
 
-mod error;
 mod impls;
-mod merge;
 
+pub mod error;
 pub use self::error::Error;
+
+pub mod merge;
 pub use self::merge::Merge;
+pub use self::merge::merge;
 
 #[cfg(feature = "derive")]
 pub use module_derive::Merge;

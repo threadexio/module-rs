@@ -19,7 +19,11 @@ unmergeable! {
 }
 
 impl Merge for () {
-    fn merge(self, (): Self) -> Result<Self, Error> {
+    fn merge(self, _other: Self) -> Result<Self, Error> {
+        Ok(())
+    }
+
+    fn merge_ref(&mut self, (): Self) -> Result<(), Error> {
         Ok(())
     }
 }
@@ -28,14 +32,14 @@ impl<T> Merge for core::cell::Cell<T>
 where
     T: Merge,
 {
-    fn merge(self, other: Self) -> Result<Self, Error> {
-        self.into_inner().merge(other.into_inner()).map(Self::new)
+    fn merge_ref(&mut self, other: Self) -> Result<(), Error> {
+        self.get_mut().merge_ref(other.into_inner())
     }
 }
 
 impl<T> Merge for core::marker::PhantomData<T> {
-    fn merge(self, _: Self) -> Result<Self, Error> {
-        Ok(Self)
+    fn merge_ref(&mut self, _: Self) -> Result<(), Error> {
+        Ok(())
     }
 }
 
@@ -63,10 +67,14 @@ impl<T> Merge for Option<T>
 where
     T: Merge,
 {
-    fn merge(self, other: Self) -> Result<Self, Error> {
-        match (self, other) {
-            (Some(a), Some(b)) => a.merge(b).map(Some),
-            (x, None) | (None, x) => Ok(x),
+    fn merge_ref(&mut self, other: Self) -> Result<(), Error> {
+        match (self.as_mut(), other) {
+            (Some(a), Some(b)) => a.merge_ref(b),
+            (_, None) => Ok(()),
+            (None, x) => {
+                *self = x;
+                Ok(())
+            }
         }
     }
 }

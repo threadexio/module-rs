@@ -13,6 +13,10 @@ mod prelude {
             fn merge(self, _other: Self) -> Result<Self, Error> {
                 Err(Error::collision())
             }
+
+            fn merge_ref(&mut self, _other: Self) -> Result<(), Error> {
+                Err(Error::collision())
+            }
         };
 
         ($($t:ty),*) => {

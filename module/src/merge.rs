@@ -1,3 +1,5 @@
+//! The [`Merge`] trait and utilities.
+
 use crate::error::Error;
 
 /// A mergeable value.
@@ -5,7 +7,24 @@ use crate::error::Error;
 /// This trait defines the interface by which 2 values are merged together.
 pub trait Merge: Sized {
     /// Merge `self` with `other`.
-    fn merge(self, other: Self) -> Result<Self, Error>;
+    fn merge(mut self, other: Self) -> Result<Self, Error> {
+        self.merge_ref(other)?;
+        Ok(self)
+    }
+
+    /// Merge `&mut self` with `other`.
+    fn merge_ref(&mut self, other: Self) -> Result<(), Error>;
+}
+
+/// Merge `this` and `other`.
+///
+/// Equivalent to: `this.merge(other)`.
+#[inline]
+pub fn merge<T>(this: T, other: T) -> Result<T, Error>
+where
+    T: Merge,
+{
+    this.merge(other)
 }
 
 #[cfg(all(test, feature = "derive"))]
@@ -18,8 +37,9 @@ mod tests {
     struct Merged(bool);
 
     impl Merge for Merged {
-        fn merge(self, _: Self) -> Result<Self, Error> {
-            Ok(Self(true))
+        fn merge_ref(&mut self, _: Self) -> Result<(), Error> {
+            self.0 = true;
+            Ok(())
         }
     }
 

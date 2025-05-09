@@ -1,9 +1,12 @@
 use core::cmp::Eq;
+use core::fmt::Display;
 use core::hash::{BuildHasher, Hash};
 
 use alloc::boxed::Box;
 
 use std::collections::{HashMap, HashSet};
+
+use crate::error::Context;
 
 use super::prelude::*;
 
@@ -15,11 +18,11 @@ unmergeable! {
 
 impl<K, V, S> Merge for HashMap<K, V, S>
 where
-    K: Eq + Hash,
+    K: Eq + Hash + Display,
     V: Merge,
     S: BuildHasher,
 {
-    fn merge(mut self, other: Self) -> Result<Self, Error> {
+    fn merge_ref(&mut self, other: Self) -> Result<(), Error> {
         use std::collections::hash_map::Entry;
 
         for (k, b) in other {
@@ -29,12 +32,13 @@ where
                 }
                 Entry::Occupied(x) => {
                     let (k, a) = x.remove_entry();
-                    self.insert(k, a.merge(b)?);
+                    let merged = a.merge(b).with_value(|| format!("{k}"))?;
+                    self.insert(k, merged);
                 }
             }
         }
 
-        Ok(self)
+        Ok(())
     }
 }
 
@@ -43,9 +47,9 @@ where
     T: Eq + Hash,
     S: BuildHasher,
 {
-    fn merge(mut self, other: Self) -> Result<Self, Error> {
+    fn merge_ref(&mut self, other: Self) -> Result<(), Error> {
         self.extend(other);
-        Ok(self)
+        Ok(())
     }
 }
 
@@ -59,8 +63,9 @@ mod tests {
     struct Merged(bool);
 
     impl Merge for Merged {
-        fn merge(self, _: Self) -> Result<Self, Error> {
-            Ok(Self(true))
+        fn merge_ref(&mut self, _: Self) -> Result<(), Error> {
+            self.0 = true;
+            Ok(())
         }
     }
 

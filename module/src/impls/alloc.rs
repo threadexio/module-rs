@@ -1,8 +1,11 @@
 use core::cmp::Ord;
+use core::fmt::Display;
 
 use alloc::boxed::Box;
 use alloc::collections::{BTreeMap, BTreeSet, LinkedList};
 use alloc::vec::Vec;
+
+use crate::error::Context;
 
 use super::prelude::*;
 
@@ -21,11 +24,16 @@ where
     T: ?Sized + alloc::borrow::ToOwned,
     T::Owned: Merge,
 {
-    fn merge(self, other: Self) -> Result<Self, Error> {
-        let a = self.into_owned();
-        let b = other.into_owned();
-
-        a.merge(b).map(Self::Owned)
+    fn merge_ref(&mut self, other: Self) -> Result<(), Error> {
+        match self {
+            Self::Owned(x) => x.merge_ref(other.into_owned()),
+            Self::Borrowed(x) => {
+                let mut x = x.to_owned();
+                x.merge_ref(other.into_owned())?;
+                *self = Self::Owned(x);
+                Ok(())
+            }
+        }
     }
 }
 
@@ -33,31 +41,31 @@ impl<T> Merge for Box<T>
 where
     T: Merge,
 {
-    fn merge(self, other: Self) -> Result<Self, Error> {
-        (*self).merge(*other).map(Box::new)
+    fn merge_ref(&mut self, other: Self) -> Result<(), Error> {
+        T::merge_ref(self, *other)
     }
 }
 
 impl<T> Merge for Vec<T> {
-    fn merge(mut self, mut other: Self) -> Result<Self, Error> {
+    fn merge_ref(&mut self, mut other: Self) -> Result<(), Error> {
         self.append(&mut other);
-        Ok(self)
+        Ok(())
     }
 }
 
 impl<T> Merge for LinkedList<T> {
-    fn merge(mut self, mut other: Self) -> Result<Self, Error> {
+    fn merge_ref(&mut self, mut other: Self) -> Result<(), Error> {
         self.append(&mut other);
-        Ok(self)
+        Ok(())
     }
 }
 
 impl<K, V> Merge for BTreeMap<K, V>
 where
-    K: Ord,
+    K: Ord + Display,
     V: Merge,
 {
-    fn merge(mut self, other: Self) -> Result<Self, Error> {
+    fn merge_ref(&mut self, other: Self) -> Result<(), Error> {
         use alloc::collections::btree_map::Entry;
 
         for (k, b) in other {
@@ -67,12 +75,13 @@ where
                 }
                 Entry::Occupied(x) => {
                     let (k, a) = x.remove_entry();
-                    self.insert(k, a.merge(b)?);
+                    let merged = a.merge(b).with_value(|| format!("{k}"))?;
+                    self.insert(k, merged);
                 }
             }
         }
 
-        Ok(self)
+        Ok(())
     }
 }
 
@@ -80,9 +89,9 @@ impl<T> Merge for BTreeSet<T>
 where
     T: Ord,
 {
-    fn merge(mut self, mut other: Self) -> Result<Self, Error> {
+    fn merge_ref(&mut self, mut other: Self) -> Result<(), Error> {
         self.append(&mut other);
-        Ok(self)
+        Ok(())
     }
 }
 
@@ -94,8 +103,9 @@ mod tests {
     struct Merged(bool);
 
     impl Merge for Merged {
-        fn merge(self, _: Self) -> Result<Self, Error> {
-            Ok(Self(true))
+        fn merge_ref(&mut self, _: Self) -> Result<(), Error> {
+            self.0 = true;
+            Ok(())
         }
     }
 
