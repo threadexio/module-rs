@@ -32,7 +32,7 @@ where
                 }
                 Entry::Occupied(x) => {
                     let (k, a) = x.remove_entry();
-                    let merged = a.merge(b).with_value(|| format!("{k}"))?;
+                    let merged = a.merge(b).with_value(|| format!("\"{k}\""))?;
                     self.insert(k, merged);
                 }
             }

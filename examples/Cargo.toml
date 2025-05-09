@@ -1,0 +1,17 @@
+[package]
+name = "examples"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[[example]]
+name = "ssh"
+path = "ssh/main.rs"
+
+[dependencies]
+module = { path = "../module", features = ["derive", "serde"] }
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"

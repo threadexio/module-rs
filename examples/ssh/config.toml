@@ -1,0 +1,12 @@
+imports = [
+  "git.toml",
+  "secure.toml",
+  "user-config.toml"
+]
+
+User = "threadexio"
+IdentityFile = "~/.ssh/id_ed25519"
+
+ForwardAgent = "no"
+AddKeysToAgent = "no"
+Compression = "no"

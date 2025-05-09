@@ -1,0 +1,13 @@
+imports = [ "user-config2.toml" ]
+
+# Overrides the same setting from `config.toml`.
+IdentityFile = { value = "~/.ssh/threadexio", priority = 10 }
+
+[Host."github.com"]
+Compression = "yes"
+
+# Patch the config of `secure-server` from `secure.toml`.
+[Host.secure-server]
+User = { value = "admin", priority = 100 }
+IdentityFile = { value = "/secrets/admin@secure2.example.com.key", priority = 100 }
+Port = { value = 2223, priority = 100 }

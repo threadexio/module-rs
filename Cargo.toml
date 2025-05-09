@@ -4,6 +4,7 @@ default-members = ["module"]
 members = [
   "module",
   "module-derive",
+  "examples",
 ]
 
 [workspace.lints.rust]

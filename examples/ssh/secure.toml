@@ -1,0 +1,5 @@
+[Host.secure-server]
+User = "secure"
+HostName = "secure.example.com"
+Port = 2222
+

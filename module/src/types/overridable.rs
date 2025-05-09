@@ -7,8 +7,7 @@ use core::cmp::Ordering;
 use core::convert::{AsMut, AsRef};
 use core::ops::{Deref, DerefMut};
 
-use crate::error::Error;
-use crate::merge::Merge;
+use super::prelude::*;
 
 /// The priority of an [`Overridable`] value.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -144,6 +143,7 @@ mod serde_impl {
     #[serde(untagged)]
     enum Repr<T> {
         Priority { value: T, priority: isize },
+        Value { value: T },
         Raw(T),
     }
 
@@ -151,6 +151,7 @@ mod serde_impl {
         fn from(x: Repr<T>) -> Self {
             match x {
                 Repr::Priority { value, priority } => Overridable::with_priority(value, priority),
+                Repr::Value { value } => Overridable::new(value),
                 Repr::Raw(value) => Overridable::new(value),
             }
         }
