@@ -38,7 +38,7 @@ extern crate std;
 mod impls;
 
 pub mod error;
-pub use self::error::Error;
+pub use self::error::{Context, Error};
 
 pub mod merge;
 pub use self::merge::{Merge, merge};
