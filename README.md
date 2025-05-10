@@ -11,19 +11,21 @@
 [license]: https://github.com/threadexio/module-rs/blob/master/LICENSE
 
 <div class="rustdoc-hidden">
-  <div align="center"
-    <img src="https://raw.githubusercontent.com/threadexio/module-rs/master/assets/title.svg" width="640" alt="title"/>
 
-    <p>
-      Modular NixOS-style configuration crate.
-    <p>
+<div align="center"
+  <img src="https://raw.githubusercontent.com/threadexio/module-rs/master/assets/title.svg" width="640" alt="title"/>
 
-    [![version-badge]][crates-io]
-    [![tests-badge]][gh-actions]
-    [![docs-badge]][docs-rs]
-    [![license-badge]][crates-io]
+  <p>
+    Modular NixOS-style configuration crate.
+  <p>
 
-  </div>
+  [![version-badge]][crates-io]
+  [![tests-badge]][gh-actions]
+  [![docs-badge]][docs-rs]
+  [![license-badge]][crates-io]
+
+</div>
+
 </div>
 
 ## License
