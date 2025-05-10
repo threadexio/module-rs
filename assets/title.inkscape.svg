@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="1280"
-   height="640"
-   viewBox="0 0 1280 640"
+   width="1003.7812"
+   height="141.9375"
+   viewBox="0 0 1003.7812 141.9375"
    version="1.1"
    id="svg1"
    inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
@@ -24,8 +24,8 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="px"
      inkscape:zoom="0.73701597"
-     inkscape:cx="615.3191"
-     inkscape:cy="637.70667"
+     inkscape:cx="476.92318"
+     inkscape:cy="388.05129"
      inkscape:window-width="2560"
      inkscape:window-height="1408"
      inkscape:window-x="0"
@@ -37,10 +37,11 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(-138.10937,-249.03125)">
     <text
        xml:space="preserve"
-       style="font-style:italic;font-variant:normal;font-weight:900;font-stretch:normal;font-size:192px;font-family:Inter;-inkscape-font-specification:'Inter, Heavy Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#e0e0e0;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers;fill-opacity:1"
+       style="font-style:italic;font-variant:normal;font-weight:900;font-stretch:normal;font-size:192px;font-family:Inter;-inkscape-font-specification:'Inter, Heavy Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#e0e0e0;fill-opacity:1;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
        x="137.26562"
        y="388.71875"
        id="text1"><tspan
