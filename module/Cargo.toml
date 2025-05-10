@@ -1,11 +1,23 @@
 [package]
 name = "module"
 version = "0.0.0"
+authors = ["threadexio"]
 edition = "2024"
 description = '''
-Modular NixOS-style configuration library.
+Modular NixOS-style configuration crate.
 '''
+documentation = "https://docs.rs/module"
+readme = "README.md"
+homepage = "https://github.com/threadexio/module-rs"
+repository = "https://github.com/threadexio/module-rs"
 license = "MIT"
+keywords = ["module", "config", "nix"]
+categories = ["command-line-utilities", "config", "no-std"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustc-args = ["--cfg", "module_nightly"]
+rustdoc-args = ["--cfg", "module_nightly"]
 
 [dependencies]
 module-derive = { version = "0.0.0", path = "../module-derive", optional = true }
