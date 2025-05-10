@@ -2,6 +2,13 @@ name: CI
 
 on:
   push:
+    paths:
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain.toml
+      - module/**
+      - module-derive/**
+      - examples/**
   pull_request:
 
 env:
