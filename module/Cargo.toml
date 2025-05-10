@@ -10,7 +10,7 @@ documentation = "https://docs.rs/module"
 readme = "README.md"
 homepage = "https://github.com/threadexio/module-rs"
 repository = "https://github.com/threadexio/module-rs"
-license = "MIT"
+license = "Apache-2.0"
 keywords = ["module", "config", "nix"]
 categories = ["command-line-utilities", "config", "no-std"]
 

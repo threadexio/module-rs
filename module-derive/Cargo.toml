@@ -5,7 +5,9 @@ edition = "2024"
 description = '''
 Derive macros for the `module` crate.
 '''
-license = "MIT"
+homepage = "https://github.com/threadexio/module-rs"
+repository = "https://github.com/threadexio/module-rs"
+license = "Apache-2.0"
 
 [lib]
 proc-macro = true
