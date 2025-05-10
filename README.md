@@ -13,9 +13,14 @@
 <div class="rustdoc-hidden">
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/threadexio/module-rs/master/assets/icon.png" width="70%" alt="logo">
   <br>
-  <img src="https://raw.githubusercontent.com/threadexio/module-rs/master/assets/title.svg" width="50%" alt="logo">
+  <img src="https://raw.githubusercontent.com/threadexio/module-rs/master/assets/icon.png" width="25%" alt="logo">
+  <br>
+  <br>
+  <br>
+  <img src="https://raw.githubusercontent.com/threadexio/module-rs/master/assets/title.svg" width="20%" alt="logo">
+  <br>
+  <br>
 
   <p>
     Modular NixOS-style configuration crate.
