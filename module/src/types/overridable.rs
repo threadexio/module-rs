@@ -5,12 +5,13 @@
 use core::borrow::{Borrow, BorrowMut};
 use core::cmp::Ordering;
 use core::convert::{AsMut, AsRef};
+use core::fmt;
 use core::ops::{Deref, DerefMut};
 
 use super::prelude::*;
 
 /// The priority of an [`Overridable`] value.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Priority(isize);
 
 impl From<isize> for Priority {
@@ -22,6 +23,12 @@ impl From<isize> for Priority {
 impl From<Priority> for isize {
     fn from(x: Priority) -> Self {
         x.0
+    }
+}
+
+impl fmt::Debug for Priority {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
     }
 }
 
@@ -75,7 +82,7 @@ impl<T, const DEFAULT: isize> Overridable<T, DEFAULT> {
     }
 }
 
-impl<T> Merge for Overridable<T> {
+impl<T, const DEFAULT: isize> Merge for Overridable<T, DEFAULT> {
     fn merge_ref(&mut self, other: Self) -> Result<(), Error> {
         match self.priority.cmp(&other.priority) {
             Ordering::Less => Ok(()),
@@ -85,6 +92,12 @@ impl<T> Merge for Overridable<T> {
             }
             Ordering::Equal => Err(Error::collision()),
         }
+    }
+}
+
+impl<T, const DEFAULT: isize> From<T> for Overridable<T, DEFAULT> {
+    fn from(value: T) -> Self {
+        Self::new(value)
     }
 }
 

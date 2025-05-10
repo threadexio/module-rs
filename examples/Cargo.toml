@@ -11,6 +11,10 @@ path = "src/lib.rs"
 name = "ssh"
 path = "ssh/main.rs"
 
+[[example]]
+name = "cargo"
+path = "cargo/main.rs"
+
 [dependencies]
 module = { path = "../module", features = ["derive", "serde"] }
 serde = { version = "1", features = ["derive"] }

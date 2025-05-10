@@ -1,0 +1,6 @@
+[build]
+rustc = { value = "/nix/store/<...>/bin/rustc", priority = 1000 }
+rustdoc = { value = "/nix/store/<...>/bin/rustdoc", priority = 1000 }
+
+[doc]
+browser = { value = "/nix/store/<...>/bin/chromium", priority = 1000 }

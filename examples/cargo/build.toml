@@ -1,0 +1,5 @@
+
+[build]
+target-dir = { value = "/tmp/target", priority = -1 }
+rustflags = [ "-C", "opt-level=3" ]
+incremental = false

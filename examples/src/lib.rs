@@ -20,6 +20,7 @@ struct Module<T> {
 
 pub struct Eval<T> {
     evaluated: HashSet<PathBuf>,
+    cwd: PathBuf,
     value: Option<T>,
 }
 
@@ -27,6 +28,7 @@ impl<T> Eval<T> {
     pub fn new() -> Self {
         Self {
             evaluated: HashSet::new(),
+            cwd: std::env::current_dir().unwrap(),
             value: None,
         }
     }
@@ -43,6 +45,7 @@ where
     T: DeserializeOwned + Merge,
 {
     fn read(&mut self, path: &Path) -> Result<Module<T>, Error> {
+        let path = self.cwd.join(path);
         let realpath = fs::canonicalize(path).map_err(Error::custom)?;
 
         if self.evaluated.contains(&realpath) {
@@ -50,6 +53,7 @@ where
         }
 
         let contents = fs::read_to_string(&realpath).map_err(Error::custom)?;
+        self.cwd = realpath.parent().unwrap().to_path_buf();
         self.evaluated.insert(realpath);
 
         toml::from_str(&contents).map_err(Error::custom)

@@ -1,0 +1,15 @@
+imports = [
+  "base.toml",
+  "build.toml"
+]
+
+[alias]
+b = "build"
+check-all = ["check", "--workspace"]
+clippy-all = ["clippy", "--workspace"]
+
+[build]
+incremental = { value = true, priority = 5 }
+
+[env]
+MYVAR = { value = "Goodbye world!", priority = 1 }
