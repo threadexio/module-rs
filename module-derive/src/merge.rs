@@ -100,12 +100,12 @@ pub fn merge(item: TokenStream) -> TokenStream {
 
             quote! {
                 fn merge(self, other: Self) -> Result<Self, ::module::Error> {
-                    use ::module::error::Context as _;
+                    use ::module::Context as _;
                     Ok(Self(#merge_fields))
                 }
 
                 fn merge_ref(&mut self, other: Self) -> Result<(), ::module::Error> {
-                    use ::module::error::Context as _;
+                    use ::module::Context as _;
                     #merge_ref_fields
                     Ok(())
                 }
@@ -129,12 +129,12 @@ pub fn merge(item: TokenStream) -> TokenStream {
 
             quote! {
                 fn merge(self, other: Self) -> Result<Self, ::module::Error> {
-                    use ::module::error::Context as _;
+                    use ::module::Context as _;
                     Ok(Self { #merge_fields })
                 }
 
                 fn merge_ref(&mut self, other: Self) -> Result<(), ::module::Error> {
-                    use ::module::error::Context as _;
+                    use ::module::Context as _;
                     #merge_ref_fields
                     Ok(())
                 }

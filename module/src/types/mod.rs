@@ -8,8 +8,7 @@ pub use self::no_merge::NoMerge;
 
 #[allow(unused_imports)]
 mod prelude {
-    pub(super) use crate::error::{Context, Error};
-    pub(super) use crate::merge::Merge;
+    pub(super) use crate::merge::{Context, Error, Merge};
 
     macro_rules! merge_thin_wrapper {
     (

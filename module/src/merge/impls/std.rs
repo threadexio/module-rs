@@ -6,8 +6,6 @@ use alloc::boxed::Box;
 
 use std::collections::{HashMap, HashSet};
 
-use crate::error::Context;
-
 use super::prelude::*;
 
 unmergeable! {

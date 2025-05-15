@@ -5,8 +5,7 @@ mod core;
 mod std;
 
 mod prelude {
-    pub(super) use crate::error::Error;
-    pub(super) use crate::merge::Merge;
+    pub(super) use crate::{Context, Error, Merge};
 
     macro_rules! unmergeable {
         () => {

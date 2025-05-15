@@ -15,13 +15,8 @@ extern crate alloc;
 #[cfg(feature = "std")]
 extern crate std;
 
-mod impls;
-
-pub mod error;
-pub use self::error::{Context, Error};
-
 pub mod merge;
-pub use self::merge::{Merge, merge};
+pub use self::merge::{Context, Error, Merge, merge};
 
 #[cfg(feature = "derive")]
 pub use module_derive::Merge;

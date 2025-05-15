@@ -5,8 +5,6 @@ use alloc::boxed::Box;
 use alloc::collections::{BTreeMap, BTreeSet, LinkedList};
 use alloc::vec::Vec;
 
-use crate::error::Context;
-
 use super::prelude::*;
 
 unmergeable! {

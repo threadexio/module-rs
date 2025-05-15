@@ -3,8 +3,7 @@ use std::path::{Path, PathBuf};
 use serde::Deserialize;
 use serde::de::DeserializeOwned;
 
-use module::Merge;
-use module::error::{Context, Error};
+use module::{Context, Error, Merge};
 
 use std::collections::HashSet;
 use std::fs;
