@@ -19,7 +19,6 @@ struct Module<T> {
 
 pub struct Eval<T> {
     evaluated: HashSet<PathBuf>,
-    cwd: PathBuf,
     value: Option<T>,
 }
 
@@ -27,7 +26,6 @@ impl<T> Eval<T> {
     pub fn new() -> Self {
         Self {
             evaluated: HashSet::new(),
-            cwd: std::env::current_dir().unwrap(),
             value: None,
         }
     }
@@ -44,18 +42,29 @@ where
     T: DeserializeOwned + Merge,
 {
     fn read(&mut self, path: &Path) -> Result<Module<T>, Error> {
-        let path = self.cwd.join(path);
-        let realpath = fs::canonicalize(path).map_err(Error::custom)?;
+        let path = fs::canonicalize(path).map_err(Error::custom)?;
 
-        if self.evaluated.contains(&realpath) {
+        if self.evaluated.contains(&path) {
             return Err(Error::cycle());
         }
 
-        let contents = fs::read_to_string(&realpath).map_err(Error::custom)?;
-        self.cwd = realpath.parent().unwrap().to_path_buf();
-        self.evaluated.insert(realpath);
+        let contents = fs::read_to_string(&path).map_err(Error::custom)?;
 
-        toml::from_str(&contents).map_err(Error::custom)
+        let basename = path
+            .parent()
+            .expect("paths that lead to files must have a parent");
+
+        let mut module: Module<T> = toml::from_str(&contents).map_err(Error::custom)?;
+
+        // Make each import relative to the path of the module which imported it.
+        module.imports = module
+            .imports
+            .into_iter()
+            .map(|x| basename.join(x))
+            .collect();
+
+        self.evaluated.insert(path);
+        Ok(module)
     }
 
     fn _add(&mut self, path: &Path) -> Result<(), Error> {
