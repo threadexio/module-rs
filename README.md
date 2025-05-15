@@ -10,15 +10,19 @@
 [examples]: https://github.com/threadexio/module-rs/tree/master/examples
 [license]: https://github.com/threadexio/module-rs/blob/master/LICENSE
 
+[`Context`]: https://docs.rs/module/latest/module/error/trait.Error.html
+[`Error`]: https://docs.rs/module/latest/module/error/struct.Error.html
 [`Merge`]: https://docs.rs/module/latest/module/trait.Merge.html
-[`Overridable`]: https://docs.rs/module/latest/module/types/overridable/struct.Overridable.html
 [`NoMerge`]: https://docs.rs/module/latest/module/types/overridable/struct.NoMerge.html
+[`Overridable`]: https://docs.rs/module/latest/module/types/overridable/struct.Overridable.html
+[`types`]: https://docs.rs/module/latest/module/types/index.html
+
+[`serde::Deserialize`]: https://docs.rs/serde/latest/serde/trait.Deserialize.html
+
+[`serde`]: https://docs.rs/serde/latest/serde
 [`core`]: https://doc.rust-lang.org/stable/core
 [`alloc`]: https://doc.rust-lang.org/stable/alloc
 [`std`]: https://doc.rust-lang.org/stable/std
-[`types`]: https://docs.rs/module/latest/module/types/index.html
-[`serde::Deserialize`]: https://docs.rs/serde/latest/serde/trait.Deserialize.html
-[`serde`]: https://docs.rs/serde/latest/serde
 
 <div class="rustdoc-hidden">
 
