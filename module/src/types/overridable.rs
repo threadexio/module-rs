@@ -186,15 +186,7 @@ mod serde_impl {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    struct Merged(bool);
-
-    impl Merge for Merged {
-        fn merge_ref(&mut self, _: Self) -> Result<(), Error> {
-            self.0 = true;
-            Ok(())
-        }
-    }
+    use crate::test::*;
 
     #[inline]
     fn x<T>(value: T, priority: isize) -> Overridable<T> {

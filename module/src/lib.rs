@@ -22,3 +22,6 @@ pub use self::merge::{Context, Error, Merge, merge};
 pub use module_derive::Merge;
 
 pub mod types;
+
+#[cfg(test)]
+mod test;

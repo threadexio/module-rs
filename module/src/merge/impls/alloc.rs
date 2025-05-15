@@ -96,16 +96,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[derive(Debug, PartialEq, Eq)]
-    struct Merged(bool);
-
-    impl Merge for Merged {
-        fn merge_ref(&mut self, _: Self) -> Result<(), Error> {
-            self.0 = true;
-            Ok(())
-        }
-    }
+    use crate::test::*;
 
     #[test]
     fn test_box() {
@@ -138,25 +129,15 @@ mod tests {
 
     #[test]
     fn test_btree_map() {
-        let a: BTreeMap<&'static str, Merged> = [
-            ("key1", Merged(false)),
-            ("key2", Merged(false)),
-            ("key3", Merged(false)),
-            ("key4", Merged(false)),
-            ("key7", Merged(false)),
-        ]
-        .into_iter()
-        .collect();
+        fn from_keys(keys: &[&'static str]) -> BTreeMap<&'static str, Merged> {
+            keys.iter()
+                .copied()
+                .map(|k| (k, Merged::default()))
+                .collect()
+        }
 
-        let b: BTreeMap<&'static str, Merged> = [
-            ("key5", Merged(false)),
-            ("key1", Merged(false)),
-            ("key7", Merged(false)),
-            ("key2", Merged(false)),
-            ("key6", Merged(false)),
-        ]
-        .into_iter()
-        .collect();
+        let a = from_keys(&["key1", "key2", "key3", "key4", "key7"]);
+        let b = from_keys(&["key5", "key1", "key7", "key2", "key6"]);
 
         let c = a.merge(b).unwrap();
 
@@ -169,6 +150,8 @@ mod tests {
             ("key6", Merged(false)),
             ("key7", Merged(true)),
         ];
+
+        assert_eq!(expected.len(), c.len());
 
         for (k, v) in expected {
             assert_eq!(c[k].0, v.0, "key: {k}");

@@ -1,16 +1,7 @@
-use crate::{Error, Merge};
-
-#[derive(Default)]
-struct Merged(bool);
-
-impl Merge for Merged {
-    fn merge_ref(&mut self, _: Self) -> Result<(), Error> {
-        self.0 = true;
-        Ok(())
-    }
-}
+use crate::test::*;
 
 #[test]
+#[cfg(feature = "derive")]
 fn test_derive_merge_unit() {
     #[derive(Merge)]
     struct Unit;
@@ -22,6 +13,7 @@ fn test_derive_merge_unit() {
 }
 
 #[test]
+#[cfg(feature = "derive")]
 fn test_derive_merge_tuple() {
     #[derive(Default, Merge)]
     struct MyType(Merged, Merged);
@@ -36,6 +28,7 @@ fn test_derive_merge_tuple() {
 }
 
 #[test]
+#[cfg(feature = "derive")]
 fn test_derive_merge_named() {
     #[derive(Default, Merge)]
     struct MyType {

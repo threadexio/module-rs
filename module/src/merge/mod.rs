@@ -5,7 +5,7 @@ pub use self::error::{Context, Error};
 
 mod impls;
 
-#[cfg(all(test, feature = "derive"))]
+#[cfg(test)]
 mod tests;
 
 /// A mergeable value.
