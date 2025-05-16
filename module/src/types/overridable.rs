@@ -42,6 +42,14 @@ impl fmt::Debug for Priority {
 /// This can be changed by the `DEFAULT` type parameter. If you need to change
 /// this default, it is strongly recommended you make a type alias to avoid
 /// specifying the default priority on each use.
+///
+/// # serde
+///
+/// This type deserializes as one of the following:
+///
+/// * `T`
+/// * `{ value: T }`
+/// * `{ value: T, priority: isize }`
 #[derive(Debug, Clone, Copy)]
 pub struct Overridable<T, const DEFAULT: isize = 500> {
     value: T,

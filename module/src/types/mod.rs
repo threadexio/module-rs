@@ -1,10 +1,12 @@
 //! Types implementing various merge strategies.
 
-pub mod overridable;
-pub use self::overridable::Overridable;
-
 pub mod no_merge;
+pub mod overridable;
+
+#[doc(inline)]
 pub use self::no_merge::NoMerge;
+#[doc(inline)]
+pub use self::overridable::Overridable;
 
 #[allow(unused_imports)]
 mod prelude {

@@ -9,6 +9,10 @@ merge_thin_wrapper! {
     ///
     /// This wrapper can wrap any type and make it "unmergeable". This means
     /// that any attempt to merge it will result in a collision error.
+    ///
+    /// # serde
+    ///
+    /// This type deserializes just like a normal `T`.
     pub struct NoMerge;
 }
 
