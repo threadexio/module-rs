@@ -1,6 +1,6 @@
 #[allow(unused_imports)]
 pub use crate::{
-    merge::Merge,
+    Merge,
     merge::error::{Context, Error, ErrorKind, Trace},
 };
 
