@@ -12,6 +12,27 @@ use super::prelude::*;
 
 /// Strings concatenated with `\n`.
 ///
+/// # Example
+///
+/// ```rust
+/// # use module::types::Lines;
+/// # use module::merge::{Merge, MergeCell};
+/// let mut cell = MergeCell::empty();
+///
+/// cell.merge(Lines::new("line1\nline2"));
+/// cell.merge(Lines::new("line3\n"));
+/// cell.merge(Lines::new("line4\n\nline5"));
+///
+/// let lines = cell.finish().unwrap();
+///
+/// assert_eq!(*lines, r#"line1
+/// line2
+/// line3
+/// line4
+///
+/// line5"#);
+/// ```
+///
 /// # serde
 ///
 /// This type deserializes like [`String`].
