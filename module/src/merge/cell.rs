@@ -31,6 +31,12 @@ pub struct MergeCell<T> {
     result: Result<(), Error>,
 }
 
+impl<T> Default for MergeCell<T> {
+    fn default() -> Self {
+        Self::empty()
+    }
+}
+
 impl<T> MergeCell<T> {
     /// Create a new empty [`MergeCell`].
     pub fn empty() -> Self {

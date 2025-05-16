@@ -4,6 +4,7 @@ mod cell;
 mod context;
 mod error;
 mod impls;
+mod iter;
 mod trace;
 
 #[cfg(test)]
@@ -12,6 +13,7 @@ mod tests;
 pub use self::cell::MergeCell;
 pub use self::context::Context;
 pub use self::error::{Error, ErrorKind};
+pub use self::iter::IteratorExt;
 pub use self::trace::{Trace, TraceIter};
 
 /// A value that may be merged.
