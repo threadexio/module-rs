@@ -82,10 +82,14 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::test::*;
 
     #[test]
     fn test_option() {
-        assert_eq!(Some(42).merge(Some(32)).unwrap_err(), Error::collision());
+        assert_eq!(
+            Some(42).merge(Some(32)).unwrap_err().kind,
+            ErrorKind::Collision
+        );
         assert_eq!(None.merge(Some(42)).unwrap(), Some(42));
         assert_eq!(Some(42).merge(None).unwrap(), Some(42));
         assert_eq!(Option::<i32>::None.merge(None).unwrap(), None);

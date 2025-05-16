@@ -1,5 +1,3 @@
-//! Error [`Trace`].
-
 use core::fmt::{self, Display};
 use core::iter::FusedIterator;
 
@@ -17,7 +15,17 @@ impl Trace {
         Self(LinkedList::new())
     }
 
-    /// Add a `trace`.
+    /// Add `trace`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use module::merge::error::Trace;
+    /// let mut trace = Trace::new();
+    ///
+    /// trace.add("item 1");
+    /// trace.add("item 2");
+    /// ```
     pub fn add<D>(&mut self, trace: D)
     where
         D: Display + Send + Sync + 'static,
@@ -29,6 +37,21 @@ impl Trace {
     ///
     /// The returned iterator iterates over all traces in the reverse order they
     /// were [`add`]ed.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use module::merge::error::Trace;
+    /// let mut trace = Trace::new();
+    ///
+    /// trace.add("item 1");
+    /// trace.add("item 2");
+    ///
+    /// let mut iter = trace.iter().map(|x| x.to_string());
+    /// assert_eq!(iter.next().as_deref(), Some("item 2"));
+    /// assert_eq!(iter.next().as_deref(), Some("item 1"));
+    /// assert_eq!(iter.next(), None);
+    /// ```
     ///
     /// [`add`]: Trace::add
     pub fn iter(&self) -> Iter<'_> {

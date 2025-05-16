@@ -222,7 +222,10 @@ mod tests {
 
     #[test]
     fn test_same_priority() {
-        assert_eq!(x(1, 10).merge(x(2, 10)).unwrap_err(), Error::collision());
+        assert_eq!(
+            x(1, 10).merge(x(2, 10)).unwrap_err().kind,
+            ErrorKind::Collision
+        );
     }
 
     #[test]

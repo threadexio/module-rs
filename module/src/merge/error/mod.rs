@@ -1,22 +1,67 @@
-//! [`Error`] for [`Merge`].
+//! [`Error`] & [`Context`].
 //!
-//! [`Merge`]: crate::Merge
+//! This module contains all the machinery used to present nice and useful error
+//! messages from merge operations.
 
 use core::fmt::{self, Debug, Display};
 use core::mem::discriminant;
 
 use alloc::boxed::Box;
 
-pub mod context;
-pub use self::context::Context;
+mod context;
+mod trace;
 
-pub mod trace;
+pub use self::context::Context;
 pub use self::trace::Trace;
 
-enum ErrorKind {
+/// Kind of [`Error`].
+#[non_exhaustive]
+pub enum ErrorKind {
+    /// Values cannot be merged.
+    ///
+    /// This error should be returned by [`Merge`] implementations when it is
+    /// not clear how to merge the values. For example, the 2 values may have
+    /// the same priority.
+    ///
+    /// For many types, the term "merge" does not make sense. How should one
+    /// merge 2 [`i32`]s for instance? Types which do not have an obvious merge
+    /// strategy or types on which the notion of "merging" cannot be defined
+    /// clearly are called "unmergeable". Such types should have a [`Merge`]
+    /// implementation but it should unconditionally return this error.
+    ///
+    /// [`Merge`]: crate::merge::Merge
     Collision,
+
+    /// Cyclic module imports.
+    ///
+    /// This error should not need to be raised by [`Merge`] implementations. It
+    /// is supposed to be raised by evaluators when they encounter cyclic module
+    /// imports.
+    ///
+    /// [`Merge`]: crate::merge::Merge
     Cycle,
+
+    /// A custom error that occurred during merging or evaluating.
+    ///
+    /// Contains a [`Box`]ed error object.
     Custom(Box<dyn Display + Send + Sync + 'static>),
+}
+
+impl ErrorKind {
+    /// Check whether `self` is [`ErrorKind::Collision`].
+    pub fn is_collision(&self) -> bool {
+        matches!(self, Self::Collision)
+    }
+
+    /// Check whether `self` is [`ErrorKind::Cycle`].
+    pub fn is_cycle(&self) -> bool {
+        matches!(self, Self::Cycle)
+    }
+
+    /// Check whether `self` is [`ErrorKind::Custom`].
+    pub fn is_custom(&self) -> bool {
+        matches!(self, Self::Custom(_))
+    }
 }
 
 impl Debug for ErrorKind {
@@ -49,16 +94,63 @@ impl Eq for ErrorKind {}
 
 /// Error returned by [`Merge`].
 ///
+/// # Display
+///
+/// The default [`Display`] implementation may not fit into the style of
+/// your app.
+///
+/// ```rust
+/// # use module::merge::{Merge, Error, Context};
+/// # let a = 42i32;
+/// # let b = 43i32;
+/// let r = a.merge(b)
+///     .value("count")
+///     .value("settings")
+///     .module("user.json")
+///     .module("config.json");
+///
+/// let err = r.unwrap_err();
+///
+/// assert_eq!(err.to_string(),
+/// r#"value collision while evaluating 'settings.count'
+///
+///     in user.json
+///   from config.json
+/// "#);
+/// ```
+///
+/// For this reason, the [`Error`] type tries to make all relevant
+/// information publically accessible. This way you can write another
+/// [`Display`] implementation that fits more inline with your vision.
+///
 /// [`Merge`]: crate::Merge
 #[derive(Debug)]
+#[allow(clippy::manual_non_exhaustive)]
 pub struct Error {
-    kind: ErrorKind,
+    _priv: (),
 
-    /// Module evaluation trace.
+    /// Error kind.
+    pub kind: ErrorKind,
+
+    /// Module trace.
+    ///
+    /// This field holds information regarding the module in which the error
+    /// occurred. It is a [`Trace`] containing that module and all parent
+    /// modules.
     pub modules: Trace,
 
     /// Value name.
+    ///
+    /// This field holds the full path of the value which caused the merge
+    /// error. The path is stored as a list of components and can be accessed as
+    /// an [`Iterator`].
     pub value: Trace,
+}
+
+impl From<ErrorKind> for Error {
+    fn from(kind: ErrorKind) -> Self {
+        Self::with_kind(kind)
+    }
 }
 
 impl Error {
@@ -85,6 +177,7 @@ impl Error {
 
     fn with_kind(kind: ErrorKind) -> Self {
         Self {
+            _priv: (),
             kind,
             modules: Trace::new(),
             value: Trace::new(),
@@ -95,10 +188,6 @@ impl Error {
 impl Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.kind)?;
-
-        if f.alternate() {
-            return Ok(());
-        }
 
         let mut value = self.value.iter();
         if let Some(first) = value.next() {
@@ -121,11 +210,3 @@ impl Display for Error {
 }
 
 impl core::error::Error for Error {}
-
-impl PartialEq for Error {
-    fn eq(&self, other: &Self) -> bool {
-        self.kind.eq(&other.kind)
-    }
-}
-
-impl Eq for Error {}

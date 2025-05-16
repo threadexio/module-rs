@@ -1,5 +1,3 @@
-//! The [`Context`] trait.
-
 use core::fmt::Display;
 
 use super::Error;
