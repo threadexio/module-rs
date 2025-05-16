@@ -43,6 +43,19 @@ impl fmt::Debug for Priority {
 /// this default, it is strongly recommended you make a type alias to avoid
 /// specifying the default priority on each use.
 ///
+/// # Example
+///
+/// ```rust
+/// # use module::types::Overridable;
+/// # use module::merge::Merge;
+/// let a = Overridable::with_priority("foo", 10);
+/// let b = Overridable::with_priority("bar", 5);
+///
+/// let merged: Overridable<&str> = a.merge(b).unwrap();
+///
+/// assert_eq!(*merged, "bar");
+/// ```
+///
 /// # serde
 ///
 /// This type deserializes as one of the following:

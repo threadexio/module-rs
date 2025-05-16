@@ -22,7 +22,6 @@ mod prelude {
         ) => {
             $(#[$attr])*
             #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-            #[cfg_attr(feature = "serde", derive(serde::Deserialize))]
             $vis struct $wrapper<T>(pub T);
 
             impl<T> ::core::default::Default for $wrapper<T>
@@ -31,6 +30,13 @@ mod prelude {
             {
                 fn default() -> Self {
                     Self(T::default())
+                }
+            }
+
+            impl<T> ::core::convert::From<T> for $wrapper<T> {
+                #[inline]
+                fn from(x: T) -> Self {
+                    Self(x)
                 }
             }
 
