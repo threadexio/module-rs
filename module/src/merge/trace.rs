@@ -20,7 +20,7 @@ impl Trace {
     /// # Example
     ///
     /// ```rust
-    /// # use module::merge::error::Trace;
+    /// # use module::merge::Trace;
     /// let mut trace = Trace::new();
     ///
     /// trace.add("item 1");
@@ -41,7 +41,7 @@ impl Trace {
     /// # Example
     ///
     /// ```rust
-    /// # use module::merge::error::Trace;
+    /// # use module::merge::Trace;
     /// let mut trace = Trace::new();
     ///
     /// trace.add("item 1");
