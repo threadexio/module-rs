@@ -10,8 +10,8 @@
 [examples]: https://github.com/threadexio/module-rs/tree/master/examples
 [license]: https://github.com/threadexio/module-rs/blob/master/LICENSE
 
-[`Context`]: https://docs.rs/module/latest/module/error/trait.Error.html
-[`Error`]: https://docs.rs/module/latest/module/error/struct.Error.html
+[`Context`]: https://docs.rs/module/latest/module/merge/trait.Error.html
+[`Error`]: https://docs.rs/module/latest/module/merge/struct.Error.html
 [`Merge`]: https://docs.rs/module/latest/module/trait.Merge.html
 [`NoMerge`]: https://docs.rs/module/latest/module/types/overridable/struct.NoMerge.html
 [`Overridable`]: https://docs.rs/module/latest/module/types/overridable/struct.Overridable.html

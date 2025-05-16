@@ -8,11 +8,7 @@ use core::mem::discriminant;
 
 use alloc::boxed::Box;
 
-mod context;
-mod trace;
-
-pub use self::context::Context;
-pub use self::trace::Trace;
+use super::trace::Trace;
 
 /// Kind of [`Error`].
 #[non_exhaustive]

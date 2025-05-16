@@ -1,12 +1,16 @@
 //! The [`Merge`] trait and utilities accompanying it.
 
-pub mod error;
-pub use self::error::{Context, Error};
-
+mod context;
+mod error;
 mod impls;
+mod trace;
 
 #[cfg(test)]
 mod tests;
+
+pub use self::context::Context;
+pub use self::error::{Error, ErrorKind};
+pub use self::trace::{Trace, TraceIter};
 
 /// A value that may be merged.
 ///

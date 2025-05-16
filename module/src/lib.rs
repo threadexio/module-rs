@@ -16,6 +16,8 @@ extern crate alloc;
 extern crate std;
 
 pub mod merge;
+
+#[doc(inline)]
 pub use self::merge::{Context, Error, Merge, merge};
 
 #[cfg(feature = "derive")]

@@ -1,7 +1,7 @@
 #[allow(unused_imports)]
 pub use crate::{
-    Merge,
-    merge::error::{Context, Error, ErrorKind, Trace},
+    Context, Error, Merge,
+    merge::{ErrorKind, Trace},
 };
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]

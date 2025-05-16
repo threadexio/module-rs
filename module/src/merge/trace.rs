@@ -54,8 +54,8 @@ impl Trace {
     /// ```
     ///
     /// [`add`]: Trace::add
-    pub fn iter(&self) -> Iter<'_> {
-        Iter(self.0.iter())
+    pub fn iter(&self) -> TraceIter<'_> {
+        TraceIter(self.0.iter())
     }
 }
 
@@ -87,15 +87,15 @@ impl Default for Trace {
 /// Iterator for [`Trace`].
 ///
 /// See: [`Trace::iter`].
-pub struct Iter<'a>(linked_list::Iter<'a, Box<Item>>);
+pub struct TraceIter<'a>(linked_list::Iter<'a, Box<Item>>);
 
-impl fmt::Debug for Iter<'_> {
+impl fmt::Debug for TraceIter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Iter").finish_non_exhaustive()
     }
 }
 
-impl<'a> Iterator for Iter<'a> {
+impl<'a> Iterator for TraceIter<'a> {
     type Item = &'a Item;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -107,16 +107,16 @@ impl<'a> Iterator for Iter<'a> {
     }
 }
 
-impl DoubleEndedIterator for Iter<'_> {
+impl DoubleEndedIterator for TraceIter<'_> {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.0.next_back().map(|x| &**x)
     }
 }
 
-impl ExactSizeIterator for Iter<'_> {
+impl ExactSizeIterator for TraceIter<'_> {
     fn len(&self) -> usize {
         self.0.len()
     }
 }
 
-impl FusedIterator for Iter<'_> {}
+impl FusedIterator for TraceIter<'_> {}
