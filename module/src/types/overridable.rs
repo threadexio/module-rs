@@ -101,6 +101,15 @@ impl<T, const DEFAULT: isize> From<T> for Overridable<T, DEFAULT> {
     }
 }
 
+impl<T, const DEFAULT: isize> Default for Overridable<T, DEFAULT>
+where
+    T: Default,
+{
+    fn default() -> Self {
+        Self::new(T::default())
+    }
+}
+
 impl<T, const DEFAULT: isize> Borrow<T> for Overridable<T, DEFAULT> {
     #[inline]
     fn borrow(&self) -> &T {

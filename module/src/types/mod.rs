@@ -20,6 +20,15 @@ mod prelude {
         #[cfg_attr(feature = "serde", derive(serde::Deserialize))]
         $vis struct $wrapper<T>(pub T);
 
+        impl<T> ::core::default::Default for $wrapper<T>
+        where
+            T: ::core::default::Default
+        {
+            fn default() -> Self {
+                Self(T::default())
+            }
+        }
+
         impl<T> ::core::borrow::Borrow<T> for $wrapper<T> {
             #[inline]
             fn borrow(&self) -> &T {
