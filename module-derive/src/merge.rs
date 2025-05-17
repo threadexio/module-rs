@@ -143,22 +143,38 @@ impl Merge {
                 }),
             };
 
+            let merge_base_path = field.attributes.with.clone().unwrap_or_else(|| syn::Path {
+                leading_colon: Some(Token![::](Span::call_site())),
+                segments: [
+                    syn::PathSegment {
+                        ident: syn::Ident::new("module", Span::call_site()),
+                        arguments: syn::PathArguments::None,
+                    },
+                    syn::PathSegment {
+                        ident: syn::Ident::new("Merge", Span::call_site()),
+                        arguments: syn::PathArguments::None,
+                    },
+                ]
+                .into_iter()
+                .collect(),
+            });
+
             merge_fields.extend(quote! {
-                #name: self.#name.merge(other.#name).value(#value)?,
+                #name: #merge_base_path::merge(self.#name, _other.#name).value(#value)?,
             });
 
             merge_ref_fields.extend(quote! {
-                self.#name.merge_ref(other.#name).value(#value)?;
+                #merge_base_path::merge_ref(&mut self.#name, _other.#name).value(#value)?;
             });
         }
 
         quote! {
-            fn merge(self, other: Self) -> ::core::result::Result<Self, ::module::Error> {
+            fn merge(self, _other: Self) -> ::core::result::Result<Self, ::module::Error> {
                 use ::module::Context as _;
                 Ok(Self { #merge_fields })
             }
 
-            fn merge_ref(&mut self, other: Self) -> ::core::result::Result<(), ::module::Error> {
+            fn merge_ref(&mut self, _other: Self) -> ::core::result::Result<(), ::module::Error> {
                 use ::module::Context as _;
                 #merge_ref_fields
                 Ok(())
@@ -236,12 +252,14 @@ impl Field {
 struct Attributes {
     rename: Option<syn::Expr>,
     skip: bool,
+    with: Option<syn::Path>,
 }
 
 impl Attributes {
     pub fn new(attrs: Vec<syn::Attribute>) -> Self {
         let mut rename = None;
         let mut skip = false;
+        let mut with = None;
 
         for attr in attrs {
             let syn::Meta::List(meta) = attr.meta else {
@@ -262,12 +280,13 @@ impl Attributes {
                 match parsed_attr {
                     parse::Attribute::Rename(x) => rename = Some(x.name),
                     parse::Attribute::Skip(_) => skip = true,
+                    parse::Attribute::With(x) => with = Some(x.path),
                     parse::Attribute::Unknown => {}
                 }
             }
         }
 
-        Self { rename, skip }
+        Self { rename, skip, with }
     }
 }
 
@@ -330,9 +349,26 @@ mod parse {
         }
     }
 
+    pub struct With {
+        pub with: kw::with,
+        pub equals: Token![=],
+        pub path: syn::Path,
+    }
+
+    impl Parse for With {
+        fn parse(input: ParseStream) -> syn::Result<Self> {
+            let with = input.parse()?;
+            let equals = input.parse()?;
+            let path = input.parse()?;
+
+            Ok(Self { with, equals, path })
+        }
+    }
+
     pub enum Attribute {
         Rename(Rename),
         Skip(Skip),
+        With(With),
         Unknown,
     }
 
@@ -346,6 +382,9 @@ mod parse {
             } else if lookahead.peek(kw::skip) {
                 let x = Skip::parse(input)?;
                 Ok(Self::Skip(x))
+            } else if lookahead.peek(kw::with) {
+                let x = With::parse(input)?;
+                Ok(Self::With(x))
             } else {
                 Ok(Self::Unknown)
             }
@@ -357,5 +396,6 @@ mod parse {
     mod kw {
         syn::custom_keyword!(rename);
         syn::custom_keyword!(skip);
+        syn::custom_keyword!(with);
     }
 }
