@@ -124,6 +124,14 @@ impl Merge {
         for field in fields {
             let name = &field.name;
 
+            if field.attributes.skip {
+                merge_fields.extend(quote! {
+                    #name: self.#name,
+                });
+
+                continue;
+            }
+
             let value = match field.attributes.rename {
                 Some(ref x) => x.clone(),
                 None => syn::Expr::Lit(syn::ExprLit {
@@ -227,11 +235,13 @@ impl Field {
 
 struct Attributes {
     rename: Option<syn::Expr>,
+    skip: bool,
 }
 
 impl Attributes {
     pub fn new(attrs: Vec<syn::Attribute>) -> Self {
         let mut rename = None;
+        let mut skip = false;
 
         for attr in attrs {
             let syn::Meta::List(meta) = attr.meta else {
@@ -251,12 +261,13 @@ impl Attributes {
             for parsed_attr in parsed_attrs {
                 match parsed_attr {
                     parse::Attribute::Rename(x) => rename = Some(x.name),
+                    parse::Attribute::Skip(_) => skip = true,
                     parse::Attribute::Unknown => {}
                 }
             }
         }
 
-        Self { rename }
+        Self { rename, skip }
     }
 }
 
@@ -307,8 +318,21 @@ mod parse {
         }
     }
 
+    pub struct Skip {
+        pub skip: kw::skip,
+    }
+
+    impl Parse for Skip {
+        fn parse(input: ParseStream) -> syn::Result<Self> {
+            let skip = input.parse()?;
+
+            Ok(Self { skip })
+        }
+    }
+
     pub enum Attribute {
         Rename(Rename),
+        Skip(Skip),
         Unknown,
     }
 
@@ -319,6 +343,9 @@ mod parse {
             if lookahead.peek(kw::rename) {
                 let x = Rename::parse(input)?;
                 Ok(Self::Rename(x))
+            } else if lookahead.peek(kw::skip) {
+                let x = Skip::parse(input)?;
+                Ok(Self::Skip(x))
             } else {
                 Ok(Self::Unknown)
             }
@@ -329,5 +356,6 @@ mod parse {
 
     mod kw {
         syn::custom_keyword!(rename);
+        syn::custom_keyword!(skip);
     }
 }
