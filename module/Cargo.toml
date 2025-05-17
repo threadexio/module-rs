@@ -1,6 +1,6 @@
 [package]
 name = "module"
-version = "0.0.0"
+version = "0.1.0"
 authors = ["threadexio"]
 edition = "2024"
 description = '''
@@ -20,7 +20,7 @@ rustc-args = ["--cfg", "module_nightly"]
 rustdoc-args = ["--cfg", "module_nightly"]
 
 [dependencies]
-module-derive = { version = "0.0.0", path = "../module-derive", optional = true }
+module-derive = { version = "0.1.0", path = "../module-derive", optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
 
 [features]
