@@ -1,154 +1,333 @@
-use proc_macro::TokenStream;
-use proc_macro2::Span;
+use proc_macro2::{Span, TokenStream};
 use quote::{ToTokens, quote};
-use syn::{
-    Data, DataStruct, DeriveInput, Fields, FieldsNamed, FieldsUnnamed, GenericParam, Ident, Index,
-    Path, PathSegment, PredicateType, Token, TraitBound, TypeParamBound, TypePath, WherePredicate,
-    punctuated::Punctuated,
-};
+use syn::Token;
+use syn::parse::{Parse, ParseStream, Parser};
+use syn::punctuated::Punctuated;
 
-pub fn merge(item: TokenStream) -> TokenStream {
-    let DeriveInput {
-        ident,
-        generics,
-        data,
-        ..
-    } = syn::parse_macro_input!(item as syn::DeriveInput);
+pub fn merge(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let input = syn::parse_macro_input!(item as syn::DeriveInput);
 
-    let Data::Struct(DataStruct { fields, .. }) = data else {
-        panic!("Merge can only be derived on structs");
-    };
+    let merge = Merge::new(input);
+    merge.to_token_stream().into()
+}
 
-    let extra_bounds: Punctuated<WherePredicate, Token![,]> = generics
-        .params
-        .iter()
-        .filter_map(|x| match x {
-            GenericParam::Type(x) => Some(x),
-            _ => None,
-        })
-        .map(|x| {
-            WherePredicate::Type(PredicateType {
-                lifetimes: None,
-                bounded_ty: syn::Type::Path(TypePath {
-                    qself: None,
-                    path: Path {
-                        leading_colon: None,
-                        segments: [PathSegment::from(x.ident.clone())].into_iter().collect(),
-                    },
-                }),
-                colon_token: Token![:]([Span::call_site()]),
-                bounds: {
-                    [TypeParamBound::Trait(TraitBound {
-                        paren_token: None,
-                        modifier: syn::TraitBoundModifier::None,
-                        lifetimes: None,
-                        path: Path {
-                            leading_colon: Some(Token![::]([Span::call_site(), Span::call_site()])),
-                            segments: [
-                                PathSegment::from(Ident::new("module", Span::call_site())),
-                                PathSegment::from(Ident::new("Merge", Span::call_site())),
-                            ]
-                            .into_iter()
-                            .collect(),
-                        },
-                    })]
-                    .into_iter()
-                    .collect()
-                },
-            })
-        })
-        .collect();
+struct Merge {
+    name: syn::Ident,
+    generics: syn::Generics,
+    fields: Fields,
+}
 
-    let where_clause = match generics.where_clause.clone() {
-        Some(mut x) => {
-            x.predicates.extend(extra_bounds);
-            x
+impl Merge {
+    pub fn new(input: syn::DeriveInput) -> Self {
+        let syn::Data::Struct(syn::DataStruct { fields, .. }) = input.data else {
+            panic!("Merge can only be derived on structs");
+        };
+
+        let name = input.ident;
+        let generics = input.generics;
+        let fields = Fields::new(fields);
+
+        Self {
+            name,
+            generics,
+            fields,
         }
-        None => syn::WhereClause {
-            where_token: Token![where](Span::call_site()),
-            predicates: extra_bounds,
-        },
-    };
+    }
 
-    let mut impl_contents = proc_macro2::TokenStream::new();
+    fn make_impl_header(&self) -> TokenStream {
+        let Self { generics, name, .. } = self;
 
-    match fields {
-        Fields::Unit => quote! {
-            fn merge(self, _other: Self) -> Result<Self, ::module::Error> {
-                Ok(Self)
+        let extra_predicates: Punctuated<syn::WherePredicate, Token![,]> = generics
+            .params
+            .iter()
+            .filter_map(|x| match x {
+                syn::GenericParam::Type(x) => Some(x),
+                _ => None,
+            })
+            .map(|x| {
+                syn::WherePredicate::Type(syn::PredicateType {
+                    lifetimes: None,
+                    bounded_ty: syn::Type::Path(syn::TypePath {
+                        qself: None,
+                        path: syn::Path {
+                            leading_colon: None,
+                            segments: [syn::PathSegment::from(x.ident.clone())]
+                                .into_iter()
+                                .collect(),
+                        },
+                    }),
+                    colon_token: Token![:]([Span::call_site()]),
+                    bounds: {
+                        [syn::TypeParamBound::Trait(syn::TraitBound {
+                            paren_token: None,
+                            modifier: syn::TraitBoundModifier::None,
+                            lifetimes: None,
+                            path: syn::Path {
+                                leading_colon: Some(Token![::]([
+                                    Span::call_site(),
+                                    Span::call_site(),
+                                ])),
+                                segments: [
+                                    syn::PathSegment::from(syn::Ident::new(
+                                        "module",
+                                        Span::call_site(),
+                                    )),
+                                    syn::PathSegment::from(syn::Ident::new(
+                                        "Merge",
+                                        Span::call_site(),
+                                    )),
+                                ]
+                                .into_iter()
+                                .collect(),
+                            },
+                        })]
+                        .into_iter()
+                        .collect()
+                    },
+                })
+            })
+            .collect();
+
+        let where_clause = match generics.where_clause.clone() {
+            Some(mut x) => {
+                x.predicates.extend(extra_predicates);
+                x
+            }
+            None => syn::WhereClause {
+                where_token: Token![where](Span::call_site()),
+                predicates: extra_predicates,
+            },
+        };
+
+        quote! {
+            impl #generics ::module::Merge for #name #generics
+            #where_clause
+        }
+    }
+
+    fn make_impl_body(&self) -> TokenStream {
+        let Some(fields) = self.fields.as_fields() else {
+            return quote! {
+                fn merge(self, _: Self) -> ::core::result::Result<Self, ::module::Error> {
+                    Ok(Self)
+                }
+
+                fn merge_ref(&mut self, _: Self) -> ::core::result::Result<(), ::module::Error> {
+                    Ok(())
+                }
+            };
+        };
+
+        let mut merge_fields = TokenStream::new();
+        let mut merge_ref_fields = TokenStream::new();
+
+        for field in fields {
+            let name = &field.name;
+
+            let value = match field.attributes.rename {
+                Some(ref x) => x.clone(),
+                None => syn::Expr::Lit(syn::ExprLit {
+                    attrs: Vec::new(),
+                    lit: syn::Lit::Str(syn::LitStr::new(
+                        &field.name.to_token_stream().to_string(),
+                        field.name.span(),
+                    )),
+                }),
+            };
+
+            merge_fields.extend(quote! {
+                #name: self.#name.merge(other.#name).value(#value)?,
+            });
+
+            merge_ref_fields.extend(quote! {
+                self.#name.merge_ref(other.#name).value(#value)?;
+            });
+        }
+
+        quote! {
+            fn merge(self, other: Self) -> ::core::result::Result<Self, ::module::Error> {
+                use ::module::Context as _;
+                Ok(Self { #merge_fields })
             }
 
-            fn merge_ref(&mut self, _other: Self) -> Result<(), ::module::Error> {
+            fn merge_ref(&mut self, other: Self) -> ::core::result::Result<(), ::module::Error> {
+                use ::module::Context as _;
+                #merge_ref_fields
                 Ok(())
             }
-        },
-        Fields::Unnamed(FieldsUnnamed { unnamed, .. }) => {
-            let mut merge_fields: Punctuated<_, Token![,]> = Punctuated::new();
-            let mut merge_ref_fields = proc_macro2::TokenStream::new();
+        }
+    }
+}
 
-            for field in unnamed.iter().enumerate().map(|(i, _)| Index::from(i)) {
-                let name = field.to_token_stream().to_string();
+impl ToTokens for Merge {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let header = self.make_impl_header();
+        let body = self.make_impl_body();
 
-                merge_fields.push(quote! {
-                    self.#field.merge(other.#field).value(#name)?
-                });
+        let x = quote! {
+            #header { #body }
+        };
 
-                merge_ref_fields.extend(quote! {
-                    self.#field.merge_ref(other.#field).value(#name)?;
-                });
+        // panic!("{x}")
+        x.to_tokens(tokens)
+    }
+}
+
+enum Fields {
+    Unit,
+    Fields(Vec<Field>),
+}
+
+impl Fields {
+    pub fn new(fields: syn::Fields) -> Self {
+        let from_iter = |iter: syn::punctuated::Iter<'_, syn::Field>| {
+            let x = iter
+                .into_iter()
+                .cloned()
+                .enumerate()
+                .map(|(i, field)| (syn::Index::from(i), field))
+                .map(|(i, field)| Field::new(i, field))
+                .collect();
+
+            Self::Fields(x)
+        };
+
+        match fields {
+            syn::Fields::Unit => Self::Unit,
+            syn::Fields::Unnamed(x) => from_iter(x.unnamed.iter()),
+            syn::Fields::Named(x) => from_iter(x.named.iter()),
+        }
+    }
+
+    pub fn as_fields(&self) -> Option<&[Field]> {
+        match self {
+            Self::Unit => None,
+            Self::Fields(x) => Some(x),
+        }
+    }
+}
+
+struct Field {
+    attributes: Attributes,
+    name: FieldName,
+}
+
+impl Field {
+    pub fn new(i: syn::Index, field: syn::Field) -> Self {
+        let attributes = Attributes::new(field.attrs);
+
+        let name = match field.ident {
+            Some(x) => FieldName::Named(x),
+            None => FieldName::Unnamed(i),
+        };
+
+        Self { attributes, name }
+    }
+}
+
+struct Attributes {
+    rename: Option<syn::Expr>,
+}
+
+impl Attributes {
+    pub fn new(attrs: Vec<syn::Attribute>) -> Self {
+        let mut rename = None;
+
+        for attr in attrs {
+            let syn::Meta::List(meta) = attr.meta else {
+                continue;
+            };
+
+            if meta.path.get_ident().is_none_or(|x| x != "merge") {
+                continue;
             }
 
-            quote! {
-                fn merge(self, other: Self) -> Result<Self, ::module::Error> {
-                    use ::module::Context as _;
-                    Ok(Self(#merge_fields))
-                }
+            let parsed_attrs: Vec<parse::Attribute> =
+                Parser::parse2(parse::Attributes::parse_terminated, meta.tokens)
+                    .unwrap()
+                    .into_iter()
+                    .collect();
 
-                fn merge_ref(&mut self, other: Self) -> Result<(), ::module::Error> {
-                    use ::module::Context as _;
-                    #merge_ref_fields
-                    Ok(())
+            for parsed_attr in parsed_attrs {
+                match parsed_attr {
+                    parse::Attribute::Rename(x) => rename = Some(x.name),
+                    parse::Attribute::Unknown => {}
                 }
             }
         }
-        Fields::Named(FieldsNamed { named, .. }) => {
-            let mut merge_fields: Punctuated<_, Token![,]> = Punctuated::new();
-            let mut merge_ref_fields = proc_macro2::TokenStream::new();
 
-            for field in named.iter().map(|x| x.ident.clone().unwrap()) {
-                let name = field.to_token_stream().to_string();
+        Self { rename }
+    }
+}
 
-                merge_fields.push(quote! {
-                    #field: self.#field.merge(other.#field).value(#name)?
-                });
+enum FieldName {
+    Named(syn::Ident),
+    Unnamed(syn::Index),
+}
 
-                merge_ref_fields.extend(quote! {
-                    self.#field.merge_ref(other.#field).value(#name)?;
-                });
-            }
+impl FieldName {
+    pub fn span(&self) -> Span {
+        match self {
+            Self::Named(x) => x.span(),
+            Self::Unnamed(x) => x.span,
+        }
+    }
+}
 
-            quote! {
-                fn merge(self, other: Self) -> Result<Self, ::module::Error> {
-                    use ::module::Context as _;
-                    Ok(Self { #merge_fields })
-                }
+impl ToTokens for FieldName {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match self {
+            Self::Named(x) => x.to_tokens(tokens),
+            Self::Unnamed(x) => x.to_tokens(tokens),
+        }
+    }
+}
 
-                fn merge_ref(&mut self, other: Self) -> Result<(), ::module::Error> {
-                    use ::module::Context as _;
-                    #merge_ref_fields
-                    Ok(())
-                }
+#[allow(dead_code)]
+mod parse {
+    use super::*;
+
+    pub struct Rename {
+        pub rename: kw::rename,
+        pub equals: Token![=],
+        pub name: syn::Expr,
+    }
+
+    impl Parse for Rename {
+        fn parse(input: ParseStream) -> syn::Result<Self> {
+            let rename = input.parse()?;
+            let equals = input.parse()?;
+            let name = input.parse()?;
+
+            Ok(Self {
+                rename,
+                equals,
+                name,
+            })
+        }
+    }
+
+    pub enum Attribute {
+        Rename(Rename),
+        Unknown,
+    }
+
+    impl Parse for Attribute {
+        fn parse(input: ParseStream) -> syn::Result<Self> {
+            let lookahead = input.lookahead1();
+
+            if lookahead.peek(kw::rename) {
+                let x = Rename::parse(input)?;
+                Ok(Self::Rename(x))
+            } else {
+                Ok(Self::Unknown)
             }
         }
     }
-    .to_tokens(&mut impl_contents);
 
-    quote! {
-        impl #generics ::module::Merge for #ident #generics
-        #where_clause
-        {
-            #impl_contents
-        }
+    pub type Attributes = Punctuated<Attribute, Token![,]>;
+
+    mod kw {
+        syn::custom_keyword!(rename);
     }
-    .into()
 }

@@ -1,11 +1,9 @@
 //! Derive macros for the [`module`](https://github.com/threadexio/module-rs) crate.
 
-use proc_macro::TokenStream;
-
 mod merge;
 
 /// Derive the `Merge` trait.
-#[proc_macro_derive(Merge)]
-pub fn merge(item: TokenStream) -> TokenStream {
+#[proc_macro_derive(Merge, attributes(merge))]
+pub fn merge(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
     self::merge::merge(item)
 }

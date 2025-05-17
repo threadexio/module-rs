@@ -47,3 +47,20 @@ fn test_derive_merge_named() {
     assert!(c.b.0);
     assert!(c.c.0);
 }
+
+#[test]
+#[cfg(feature = "derive")]
+fn test_derive_merge_rename() {
+    use alloc::string::ToString;
+
+    #[derive(Debug, Default, Merge)]
+    struct MyType(#[merge(rename = "foo")] i32);
+
+    let a = MyType::default();
+    let b = MyType::default();
+
+    let err = a.merge(b).unwrap_err();
+
+    let mut iter = err.value.iter().map(|x| x.to_string());
+    assert_eq!(iter.next().as_deref(), Some("foo"));
+}
