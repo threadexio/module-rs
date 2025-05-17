@@ -20,6 +20,7 @@ pub mod merge;
 #[doc(inline)]
 pub use self::merge::{Context, Error, Merge, merge};
 
+#[doc(inline)]
 #[cfg(feature = "derive")]
 pub use module_derive::Merge;
 
