@@ -35,7 +35,7 @@ struct Config {
 }
 
 fn main() {
-    let config: Config = match examples::read("config.toml") {
+    let config: Config = match module_util::file::toml("config.toml") {
         Ok(x) => x,
         Err(e) => {
             eprintln!("{e}");

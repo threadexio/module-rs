@@ -13,6 +13,7 @@ name = "examples"
 version = "0.0.0"
 dependencies = [
  "module",
+ "module-util",
  "serde",
  "toml",
 ]

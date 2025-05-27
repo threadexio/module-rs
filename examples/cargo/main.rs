@@ -226,7 +226,7 @@ fn main() {
 
     let config_path = args.next().unwrap_or_else(|| "config.toml".into());
 
-    let config: Config = match examples::read(&config_path) {
+    let config: Config = match module_util::file::toml(&config_path) {
         Ok(x) => x,
         Err(e) => {
             eprintln!(

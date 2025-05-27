@@ -4,9 +4,6 @@ version = "0.0.0"
 edition = "2024"
 publish = false
 
-[lib]
-path = "src/lib.rs"
-
 [[example]]
 name = "ssh"
 path = "ssh/main.rs"
@@ -17,5 +14,6 @@ path = "cargo/main.rs"
 
 [dependencies]
 module = { path = "../module", features = ["derive", "serde"] }
+module-util = { path = "../module-util", features = ["toml"] }
 serde = { version = "1", features = ["derive"] }
-toml = "0.8"
+toml = { version = "0.8" }
