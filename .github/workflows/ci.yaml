@@ -9,6 +9,7 @@ on:
       - rust-toolchain.toml
       - module/**
       - module-derive/**
+      - module-util/**
       - examples/**
   pull_request:
 
