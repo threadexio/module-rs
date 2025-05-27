@@ -35,7 +35,7 @@ json = ["dep:serde_json"]
 toml = ["dep:toml"]
 yaml = ["dep:serde_yaml"]
 
-default = ["json", "toml", "yaml"]
+default = []
 
 [lints]
 workspace = true
