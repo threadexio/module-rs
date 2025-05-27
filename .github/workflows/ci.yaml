@@ -28,6 +28,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo fmt --check --all
       - run: cargo clippy --workspace --all-features
+      - run: cargo build --workspace --examples
 
   test:
     runs-on: ubuntu-latest
