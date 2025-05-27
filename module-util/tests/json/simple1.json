@@ -1,0 +1,8 @@
+{
+  "imports": [
+    "simple2.json"
+  ],
+
+  "key": "424242",
+  "items": [1]
+}

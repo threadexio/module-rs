@@ -1,0 +1,11 @@
+{
+  "imports": [
+    "./d1/d2/relative_imports2.json",
+    "d1/relative_imports5.json"
+  ],
+  
+  "value": {
+    "value": 42,
+    "priority": 100
+  }
+}

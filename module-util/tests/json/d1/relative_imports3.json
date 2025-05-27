@@ -1,0 +1,10 @@
+{
+  "imports": [
+    "d2/relative_imports4.json"
+  ],
+
+  "value": {
+    "value": 44,
+    "priority": 98
+  }
+}

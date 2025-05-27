@@ -4,6 +4,7 @@ default-members = ["module"]
 members = [
   "module",
   "module-derive",
+  "module-util",
   "examples",
 ]
 

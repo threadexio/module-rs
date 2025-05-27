@@ -1,0 +1,10 @@
+{
+  "imports": [
+    "../relative_imports3.json"
+  ],
+
+  "value": {
+    "value": 43,
+    "priority": 99
+  }
+}
