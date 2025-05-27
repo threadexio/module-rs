@@ -19,6 +19,7 @@
 
 [`serde::Deserialize`]: https://docs.rs/serde/latest/serde/trait.Deserialize.html
 
+[`module-util`]: https://docs.rs/module-util
 [`serde`]: https://docs.rs/serde/latest/serde
 [`core`]: https://doc.rust-lang.org/stable/core
 [`alloc`]: https://doc.rust-lang.org/stable/alloc
@@ -101,11 +102,8 @@ The evaluator's job is to construct such modules and merge them together.
 The source of these modules can be files from disk, environment variables and
 generally any medium that can be used to pass information to the app.
 
-Instead of trying to support all these use-cases, this crate requires that users
-write their own evaluator.
-
-One fully functional evaluator that reads modules from [TOML](https://toml.io/en/)
-files can be found in the [examples].
+Evaluators can be purpose-written for custom solutions. However, for some common
+use cases, the [`module-util`] crate provides some fully functional evaluators.
 
 ## Examples
 
