@@ -13,6 +13,7 @@ repository = "https://github.com/threadexio/module-rs"
 license = "Apache-2.0"
 keywords = ["module", "config", "nix"]
 categories = ["command-line-utilities", "config", "no-std"]
+autotests = false
 
 [package.metadata.docs.rs]
 all-features = true
@@ -36,6 +37,21 @@ toml = ["dep:toml"]
 yaml = ["dep:serde_yaml"]
 
 default = []
+
+[[test]]
+name = "test_file"
+path = "tests/test_file.rs"
+required-features = ["json"]
+
+[[test]]
+name = "test_file_format_toml"
+path = "tests/test_file_format_toml.rs"
+required-features = ["toml"]
+
+[[test]]
+name = "test_file_format_yaml"
+path = "tests/test_file_format_yaml.rs"
+required-features = ["yaml"]
 
 [lints]
 workspace = true

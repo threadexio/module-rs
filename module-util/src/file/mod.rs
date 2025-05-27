@@ -16,6 +16,7 @@ macro_rules! formats {
         $(#[cfg($cfg)])?
         pub use self::$mod::$name;
 
+        $(#[cfg($cfg)])?
         impl<T> File<T, $name> {
             #[doc = concat!("Create a new [`File`] that reads [`", stringify!($name), "`] files.")]
             #[doc = ""]
@@ -27,6 +28,7 @@ macro_rules! formats {
             }
         }
 
+        $(#[cfg($cfg)])?
         #[doc = concat!("Read the module at `path` with [`", stringify!($name), "`].")]
         #[doc = ""]
         #[doc = concat!("See: [`", stringify!($name), "`].")]
