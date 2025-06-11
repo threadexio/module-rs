@@ -2,12 +2,15 @@
 
 pub mod lines;
 pub mod no_merge;
+pub mod ordered;
 pub mod overridable;
 
 #[doc(inline)]
 pub use self::lines::Lines;
 #[doc(inline)]
 pub use self::no_merge::NoMerge;
+#[doc(inline)]
+pub use self::ordered::Ordered;
 #[doc(inline)]
 pub use self::overridable::Overridable;
 
