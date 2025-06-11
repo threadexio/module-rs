@@ -2,11 +2,9 @@
 //!
 //! See: [`Ordered`]
 
-use core::{
-    borrow::{Borrow, BorrowMut},
-    mem::swap,
-    ops::{Deref, DerefMut},
-};
+use core::borrow::{Borrow, BorrowMut};
+use core::mem::swap;
+use core::ops::{Deref, DerefMut};
 
 use super::prelude::*;
 
@@ -61,6 +59,9 @@ impl Default for Order {
 /// * `T`
 /// * `{ value: T }`
 /// * `{ value: T, order: "before"|"after" }`
+///
+/// [`Before`]: Order::Before
+/// [`After`]: Order::After
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Ordered<T> {
     value: T,
