@@ -1,10 +1,16 @@
 //! Types implementing various merge strategies.
 
+pub mod first;
+pub mod last;
 pub mod lines;
 pub mod no_merge;
 pub mod ordered;
 pub mod overridable;
 
+#[doc(inline)]
+pub use self::first::First;
+#[doc(inline)]
+pub use self::last::Last;
 #[doc(inline)]
 pub use self::lines::Lines;
 #[doc(inline)]
