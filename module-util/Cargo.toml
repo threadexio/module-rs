@@ -1,6 +1,6 @@
 [package]
 name = "module-util"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["threadexio"]
 edition = "2024"
 description = '''
@@ -29,7 +29,7 @@ toml = { version = "0.8", optional = true }
 serde_yaml = { version = "0.9", optional = true }
 
 [dev-dependencies]
-module = { version = "0.1.0", features = ["derive"], path = "../module" }
+module = { version = "0.1", features = ["derive"], path = "../module" }
 
 [features]
 json = ["dep:serde_json"]
