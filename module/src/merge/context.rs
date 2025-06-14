@@ -66,7 +66,7 @@ impl<T> Context for core::result::Result<T, Error> {
         D: Display + Send + Sync + 'static,
     {
         self.map_err(|mut e| {
-            e.modules.add(f());
+            e.modules.push(f());
             e
         })
     }
@@ -85,7 +85,7 @@ impl<T> Context for core::result::Result<T, Error> {
         Self: Sized,
     {
         self.map_err(|mut e| {
-            e.value.add(f());
+            e.value.push(f());
             e
         })
     }

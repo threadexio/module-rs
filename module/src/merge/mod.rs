@@ -2,19 +2,19 @@
 
 mod cell;
 mod context;
-mod error;
 mod impls;
 mod iter;
-mod trace;
 
 #[cfg(test)]
 mod tests;
 
+pub mod error;
+
 pub use self::cell::MergeCell;
 pub use self::context::Context;
+#[doc(inline)]
 pub use self::error::{Error, ErrorKind};
 pub use self::iter::IteratorExt;
-pub use self::trace::{Trace, TraceIter};
 
 /// A value that may be merged.
 ///

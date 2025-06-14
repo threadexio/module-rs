@@ -61,7 +61,7 @@ fn test_derive_merge_rename() {
 
     let err = a.merge(b).unwrap_err();
 
-    let mut iter = err.value.iter().map(|x| x.to_string());
+    let mut iter = err.value.components().map(|x| x.to_string());
     assert_eq!(iter.next().as_deref(), Some("foo"));
 }
 

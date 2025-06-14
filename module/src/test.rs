@@ -1,8 +1,5 @@
 #[allow(unused_imports)]
-pub use crate::{
-    Context, Error, Merge,
-    merge::{ErrorKind, Trace},
-};
+pub use crate::{Context, Error, Merge, merge::ErrorKind};
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Merged(pub bool);
