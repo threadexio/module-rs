@@ -258,3 +258,31 @@ mod tests {
         assert!(!c.0);
     }
 }
+
+#[cfg(test)]
+#[cfg(feature = "serde")]
+mod serde_tests {
+    use super::*;
+
+    #[test]
+    fn test_deserialize_t() {
+        let x: Overridable<i32> = serde_json::from_str("42").unwrap();
+        assert_eq!(x.priority.0, 500);
+        assert_eq!(*x, 42);
+    }
+
+    #[test]
+    fn test_deserialize_value() {
+        let x: Overridable<i32> = serde_json::from_str("{ \"value\": 42 }").unwrap();
+        assert_eq!(x.priority.0, 500);
+        assert_eq!(*x, 42);
+    }
+
+    #[test]
+    fn test_deserialize_value_priority() {
+        let x: Overridable<i32> =
+            serde_json::from_str("{ \"value\": 42, \"priority\": -500 }").unwrap();
+        assert_eq!(x.priority.0, -500);
+        assert_eq!(*x, 42);
+    }
+}

@@ -110,3 +110,29 @@ mod serde_impl {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_merge() {
+        let a = Lines::new("line1");
+        let b = Lines::new("line2");
+
+        let merged = a.merge(b).unwrap();
+        assert_eq!(*merged, "line1\nline2");
+    }
+}
+
+#[cfg(test)]
+#[cfg(feature = "serde")]
+mod serde_tests {
+    use super::*;
+
+    #[test]
+    fn test_deserialize() {
+        let x: Lines = serde_json::from_str("\"test1\\ntest2\"").unwrap();
+        assert_eq!(*x, "test1\ntest2");
+    }
+}

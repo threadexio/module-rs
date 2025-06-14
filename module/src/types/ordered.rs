@@ -224,3 +224,39 @@ mod tests {
         assert_eq!(*c, &[4, 5, 6, 0, 1, 2, 3]);
     }
 }
+
+#[cfg(test)]
+#[cfg(feature = "serde")]
+mod serde_tests {
+    use super::*;
+
+    #[test]
+    fn test_deserialize_t() {
+        let x: Ordered<i32> = serde_json::from_str("42").unwrap();
+        assert_eq!(x.order(), Order::Before);
+        assert_eq!(*x, 42);
+    }
+
+    #[test]
+    fn test_deserialize_value() {
+        let x: Ordered<i32> = serde_json::from_str("{ \"value\": 42 }").unwrap();
+        assert_eq!(x.order(), Order::Before);
+        assert_eq!(*x, 42);
+    }
+
+    #[test]
+    fn test_deserialize_value_order_before() {
+        let x: Ordered<i32> =
+            serde_json::from_str("{ \"value\": 42, \"order\": \"before\" }").unwrap();
+        assert_eq!(x.order(), Order::Before);
+        assert_eq!(*x, 42);
+    }
+
+    #[test]
+    fn test_deserialize_value_order_after() {
+        let x: Ordered<i32> =
+            serde_json::from_str("{ \"value\": 42, \"order\": \"after\" }").unwrap();
+        assert_eq!(x.order(), Order::After);
+        assert_eq!(*x, 42);
+    }
+}

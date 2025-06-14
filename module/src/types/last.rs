@@ -41,3 +41,38 @@ impl<T> Merge for Last<T> {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_merge_ab() {
+        let a = Last(42);
+        let b = Last(43);
+
+        let merged = a.merge(b).unwrap();
+        assert_eq!(*merged, 43);
+    }
+
+    #[test]
+    fn test_merge_ba() {
+        let a = Last(42);
+        let b = Last(43);
+
+        let merged = b.merge(a).unwrap();
+        assert_eq!(*merged, 42);
+    }
+}
+
+#[cfg(test)]
+#[cfg(feature = "serde")]
+mod serde_tests {
+    use super::*;
+
+    #[test]
+    fn test_deserialize() {
+        let x: Last<i32> = serde_json::from_str("42").unwrap();
+        assert_eq!(*x, 42);
+    }
+}

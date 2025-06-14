@@ -57,3 +57,30 @@ mod serde_impl {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test::*;
+
+    #[test]
+    fn test_merge() {
+        let a = NoMerge(42);
+        let b = NoMerge(43);
+
+        let err = a.merge(b).unwrap_err();
+        assert_eq!(err.kind, ErrorKind::Collision);
+    }
+}
+
+#[cfg(test)]
+#[cfg(feature = "serde")]
+mod serde_tests {
+    use super::*;
+
+    #[test]
+    fn test_deserialize() {
+        let x: NoMerge<i32> = serde_json::from_str("42").unwrap();
+        assert_eq!(*x, 42);
+    }
+}

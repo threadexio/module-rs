@@ -23,6 +23,9 @@ rustdoc-args = ["--cfg", "module_nightly"]
 module-derive = { version = "0.1.0", path = "../module-derive", optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
 
+[dev-dependencies]
+serde_json = { version = "1" }
+
 [features]
 std = []
 derive = ["dep:module-derive"]
