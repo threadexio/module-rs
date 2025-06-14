@@ -24,6 +24,78 @@ pub use self::overridable::Overridable;
 mod prelude {
     pub(super) use crate::merge::{Context, Error, Merge};
 
+    macro_rules! impl_borrow {
+        ($t:ident $(<$tp:ident>)? => $u:ty { $($tail:tt)* }) => {
+            impl $(<$tp>)? ::core::borrow::Borrow<$u> for $t $(<$tp>)? {
+                #[inline]
+                fn borrow(&self) -> &$u {
+                    &self $($tail)*
+                }
+            }
+
+            impl $(<$tp>)? ::core::borrow::BorrowMut<$u> for $t $(<$tp>)? {
+                #[inline]
+                fn borrow_mut(&mut self) -> &mut $u {
+                    &mut self $($tail)*
+                }
+            }
+        }
+    }
+
+    pub(super) use impl_borrow;
+
+    macro_rules! impl_as_ref {
+        ($t:ident $(<$tp:ident>)? => $u:ty { $($tail:tt)* }) => {
+            impl $(<$tp>)? ::core::convert::AsRef<$u> for $t $(<$tp>)? {
+                #[inline]
+                fn as_ref(&self) -> &$u {
+                    &self $($tail)*
+                }
+            }
+
+            impl $(<$tp>)? ::core::convert::AsMut<$u> for $t $(<$tp>)? {
+                #[inline]
+                fn as_mut(&mut self) -> &mut $u {
+                    &mut self $($tail)*
+                }
+            }
+        }
+    }
+
+    pub(super) use impl_as_ref;
+
+    macro_rules! impl_deref {
+        ($t:ident $(<$tp:ident>)? => $u:ty { $($tail:tt)* }) => {
+            impl $(<$tp>)? ::core::ops::Deref for $t $(<$tp>)? {
+                type Target = $u;
+
+                #[inline]
+                fn deref(&self) -> &Self::Target {
+                    &self $($tail)*
+                }
+            }
+
+            impl $(<$tp>)? ::core::ops::DerefMut for $t $(<$tp>)? {
+                #[inline]
+                fn deref_mut(&mut self) -> &mut Self::Target {
+                    &mut self $($tail)*
+                }
+            }
+        }
+    }
+
+    pub(super) use impl_deref;
+
+    macro_rules! impl_wrapper {
+        ($($tail:tt)*) => {
+            impl_borrow! { $($tail)* }
+            impl_as_ref! { $($tail)* }
+            impl_deref!  { $($tail)* }
+        }
+    }
+
+    pub(super) use impl_wrapper;
+
     macro_rules! merge_thin_wrapper {
         (
             $(#[$attr:meta])*
@@ -49,49 +121,7 @@ mod prelude {
                 }
             }
 
-            impl<T> ::core::borrow::Borrow<T> for $wrapper<T> {
-                #[inline]
-                fn borrow(&self) -> &T {
-                    &self.0
-                }
-            }
-
-            impl<T> ::core::borrow::BorrowMut<T> for $wrapper<T> {
-                #[inline]
-                fn borrow_mut(&mut self) -> &mut T {
-                    &mut self.0
-                }
-            }
-
-            impl<T> ::core::convert::AsRef<T> for $wrapper<T> {
-                #[inline]
-                fn as_ref(&self) -> &T {
-                    &self.0
-                }
-            }
-
-            impl<T> ::core::convert::AsMut<T> for $wrapper<T> {
-                #[inline]
-                fn as_mut(&mut self) -> &mut T {
-                    &mut self.0
-                }
-            }
-
-            impl<T> ::core::ops::Deref for $wrapper<T> {
-                type Target = T;
-
-                #[inline]
-                fn deref(&self) -> &Self::Target {
-                    &self.0
-                }
-            }
-
-            impl<T> ::core::ops::DerefMut for $wrapper<T> {
-                #[inline]
-                fn deref_mut(&mut self) -> &mut Self::Target {
-                    &mut self.0
-                }
-            }
+            impl_wrapper!($wrapper<T> => T { .0 });
         };
     }
 

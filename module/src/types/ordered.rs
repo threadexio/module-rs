@@ -2,9 +2,7 @@
 //!
 //! See: [`Ordered`]
 
-use core::borrow::{Borrow, BorrowMut};
 use core::mem::swap;
-use core::ops::{Deref, DerefMut};
 
 use super::prelude::*;
 
@@ -123,45 +121,9 @@ impl<T> From<T> for Ordered<T> {
     }
 }
 
-impl<T> Borrow<T> for Ordered<T> {
-    fn borrow(&self) -> &T {
-        &self.value
-    }
-}
+impl_wrapper!(Ordered<T> => T { .value });
 
-impl<T> BorrowMut<T> for Ordered<T> {
-    fn borrow_mut(&mut self) -> &mut T {
-        &mut self.value
-    }
-}
-
-impl<T> AsRef<T> for Ordered<T> {
-    fn as_ref(&self) -> &T {
-        &self.value
-    }
-}
-
-impl<T> AsMut<T> for Ordered<T> {
-    fn as_mut(&mut self) -> &mut T {
-        &mut self.value
-    }
-}
-
-impl<T> Deref for Ordered<T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        &self.value
-    }
-}
-
-impl<T> DerefMut for Ordered<T> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.value
-    }
-}
-
-// #[cfg(feature = "serde")]
+#[cfg(feature = "serde")]
 mod serde_impl {
     use super::*;
 

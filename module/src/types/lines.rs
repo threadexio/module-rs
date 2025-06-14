@@ -2,9 +2,7 @@
 //!
 //! See: [`Lines`].
 
-use core::borrow::{Borrow, BorrowMut};
 use core::fmt;
-use core::ops::{Deref, DerefMut};
 
 use alloc::string::String;
 
@@ -36,7 +34,7 @@ use super::prelude::*;
 /// # serde
 ///
 /// This type deserializes like [`String`].
-#[derive(Default, PartialEq, Eq, Hash)]
+#[derive(Default, Clone, PartialEq, Eq, Hash)]
 pub struct Lines {
     content: String,
 }
@@ -92,47 +90,9 @@ impl From<Lines> for String {
     }
 }
 
-impl Borrow<String> for Lines {
-    #[inline]
-    fn borrow(&self) -> &String {
-        &self.content
-    }
-}
-
-impl BorrowMut<String> for Lines {
-    #[inline]
-    fn borrow_mut(&mut self) -> &mut String {
-        &mut self.content
-    }
-}
-
-impl AsRef<String> for Lines {
-    #[inline]
-    fn as_ref(&self) -> &String {
-        &self.content
-    }
-}
-
-impl AsMut<String> for Lines {
-    #[inline]
-    fn as_mut(&mut self) -> &mut String {
-        &mut self.content
-    }
-}
-
-impl Deref for Lines {
-    type Target = String;
-
-    fn deref(&self) -> &Self::Target {
-        &self.content
-    }
-}
-
-impl DerefMut for Lines {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.content
-    }
-}
+impl_borrow!(Lines => str { .content });
+impl_as_ref!(Lines => str { .content });
+impl_wrapper!(Lines => String { .content });
 
 #[cfg(feature = "serde")]
 mod serde_impl {
