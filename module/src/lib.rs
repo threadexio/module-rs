@@ -6,6 +6,7 @@
 )]
 #![doc = include_str!("../README.md")]
 #![cfg_attr(module_nightly, feature(doc_auto_cfg))]
+#![forbid(unsafe_code)]
 #![no_std]
 extern crate self as module;
 

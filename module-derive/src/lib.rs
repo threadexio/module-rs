@@ -1,4 +1,5 @@
 //! Derive macros for the [`module`](https://github.com/threadexio/module-rs) crate.
+#![forbid(unsafe_code)]
 
 mod merge;
 
