@@ -4,5 +4,18 @@
 #![doc = include_str!("../README.md")]
 #![cfg_attr(module_nightly, feature(doc_auto_cfg))]
 #![forbid(unsafe_code)]
+#![no_std]
+extern crate self as module_util;
 
+extern crate alloc;
+
+#[cfg(feature = "std")]
+extern crate std;
+
+pub mod evaluator;
+
+#[cfg(feature = "file")]
 pub mod file;
+
+/// `Result<T, module::Error>`
+pub type Result<T, E = module::Error> = core::result::Result<T, E>;

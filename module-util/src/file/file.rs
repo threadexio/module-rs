@@ -1,12 +1,15 @@
 use std::collections::HashSet;
 use std::fmt;
-use std::fs;
 use std::path::{Path, PathBuf};
 
-use module::{Context, Error, Merge};
+use module::{Error, Merge};
 use serde::de::DeserializeOwned;
 
-use super::{Format, Module};
+use crate::Result;
+use crate::evaluator::Evaluator;
+use crate::file::Module;
+
+use super::Format;
 
 /// An evaluator for files.
 ///
@@ -54,8 +57,8 @@ use super::{Format, Module};
 /// ```
 #[derive(Debug)]
 pub struct File<T, F> {
+    inner: Evaluator<DisplayPath, T>,
     evaluated: HashSet<PathBuf>,
-    value: Option<T>,
     format: F,
 }
 
@@ -63,8 +66,8 @@ impl<T, F> File<T, F> {
     /// Create a new [`File`] that reads files according to `format`.
     pub fn new(format: F) -> Self {
         Self {
+            inner: Evaluator::new(),
             evaluated: HashSet::new(),
-            value: None,
             format,
         }
     }
@@ -103,7 +106,7 @@ impl<T, F> File<T, F> {
     /// [`read()`]: File::read
     /// [`Some(value)`]: Some
     pub fn finish(self) -> Option<T> {
-        self.value
+        self.inner.finish()
     }
 }
 
@@ -115,39 +118,59 @@ where
     /// Read the module at `path`.
     ///
     /// See the [type-level docs](File) for more information
-    pub fn read<P>(&mut self, path: P) -> Result<(), Error>
+    pub fn read<P>(&mut self, path: P) -> Result<()>
     where
         P: AsRef<Path>,
     {
-        let path = path.as_ref();
-        let path = fs::canonicalize(path).map_err(Error::custom)?;
-        self._read(&path).with_module(|| DisplayPath(path))
+        self._read(path.as_ref())
     }
 
-    fn _read(&mut self, path: &Path) -> Result<(), Error> {
-        if self.evaluated.contains(path) {
-            return Err(Error::cycle());
+    fn _read(&mut self, path: &Path) -> Result<()> {
+        self.inner.import(DisplayPath(path.to_path_buf()));
+
+        while let Some(path) = self.inner.next() {
+            let DisplayPath(path) = path;
+
+            let realpath = path
+                .canonicalize()
+                .map_err(Error::custom)
+                .map_err(|mut e| {
+                    e.modules = self.inner.trace(DisplayPath(path));
+                    e
+                })?;
+
+            if !self.evaluated.insert(realpath.clone()) {
+                return Err(Error::cycle()).map_err(|mut e| {
+                    e.modules = self.inner.trace(DisplayPath(realpath));
+                    e
+                });
+            }
+
+            let Module { value, imports } = match self.format.read(&realpath) {
+                Ok(x) => x,
+                Err(mut e) => {
+                    e.modules = self.inner.trace(DisplayPath(realpath));
+                    return Err(e);
+                }
+            };
+
+            // SAFETY: Since `read()` succeeded, this path must point to a
+            //         file. File paths always have a parent, the directory they
+            //         reside in.
+            let basename = realpath
+                .parent()
+                .expect("file path should always have an ancestor");
+
+            let imports = imports
+                .into_iter()
+                .map(|x| basename.join(x))
+                .map(DisplayPath)
+                .collect();
+
+            self.inner.eval(DisplayPath(realpath), imports, value)?;
         }
 
-        let Module { imports, value } = self.format.read(path)?;
-
-        match self.value {
-            Some(ref mut x) => x.merge_ref(value)?,
-            None => self.value = Some(value),
-        }
-
-        let basename = path
-            .parent()
-            .expect("file path should always have an ancestor")
-            .to_path_buf();
-
-        self.evaluated.insert(path.to_path_buf());
-
-        imports
-            .0
-            .into_iter()
-            .map(|x| basename.join(x))
-            .try_for_each(|p| self.read(p))
+        Ok(())
     }
 }
 
@@ -174,14 +197,22 @@ where
 
 impl<T, F> Default for File<T, F>
 where
+    T: Merge,
     F: Default,
 {
     fn default() -> Self {
-        Self::new(F::default())
+        Self::new(Default::default())
     }
 }
 
+#[derive(Clone)]
 struct DisplayPath(PathBuf);
+
+impl fmt::Debug for DisplayPath {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        self.0.fmt(f)
+    }
+}
 
 impl fmt::Display for DisplayPath {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

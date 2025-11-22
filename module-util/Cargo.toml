@@ -21,9 +21,8 @@ rustc-args = ["--cfg", "module_nightly"]
 rustdoc-args = ["--cfg", "module_nightly"]
 
 [dependencies]
-module = { version = "0.2", features = ["std", "serde"], path = "../module" }
-serde = { version = "1", features = ["derive"] }
-
+module = { version = "0.2", default-features = false, path = "../module" }
+serde = { version = "1", default-features = false, optional = true }
 serde_json = { version = "1", optional = true }
 toml = { version = "0.8", optional = true }
 serde_yaml = { version = "0.9", optional = true }
@@ -32,11 +31,14 @@ serde_yaml = { version = "0.9", optional = true }
 module = { version = "0.2", features = ["derive"], path = "../module" }
 
 [features]
-json = ["dep:serde_json"]
-toml = ["dep:toml"]
-yaml = ["dep:serde_yaml"]
+std = []
+serde = ["dep:serde"]
+file = ["std", "serde", "serde/std", "serde/derive"]
+json = ["file", "dep:serde_json"]
+toml = ["file", "dep:toml"]
+yaml = ["file", "dep:serde_yaml"]
 
-default = []
+default = ["std"]
 
 [[test]]
 name = "test_file"

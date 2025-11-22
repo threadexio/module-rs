@@ -5,7 +5,7 @@ mod file;
 mod format;
 
 pub use self::file::{File, read};
-pub use self::format::{Format, Imports, Module};
+pub use self::format::{Format, Module};
 
 macro_rules! formats {
     ($(

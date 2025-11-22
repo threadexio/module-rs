@@ -1,36 +1,10 @@
-use std::fmt;
 use std::path::{Path, PathBuf};
 
 use module::Error;
 use serde::Deserialize;
 use serde::de::DeserializeOwned;
 
-/// Imports of a [`Module`].
-///
-/// See: [`Module::imports`]
-#[derive(Default, Clone, Deserialize)]
-pub struct Imports(pub(crate) Vec<PathBuf>);
-
-impl fmt::Debug for Imports {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt(f)
-    }
-}
-
-impl From<Vec<PathBuf>> for Imports {
-    fn from(value: Vec<PathBuf>) -> Self {
-        Self(value)
-    }
-}
-
-impl<A> FromIterator<A> for Imports
-where
-    A: Into<PathBuf>,
-{
-    fn from_iter<T: IntoIterator<Item = A>>(iter: T) -> Self {
-        Self(iter.into_iter().map(Into::into).collect())
-    }
-}
+use crate::evaluator::Imports;
 
 /// The top-level structure of a [`File`] module.
 ///
@@ -45,7 +19,7 @@ pub struct Module<T> {
     /// [`File`]: super::File
     /// [`read()`]: super::File::read
     #[serde(default)]
-    pub imports: Imports,
+    pub imports: Imports<PathBuf>,
 
     /// Value of the module.
     #[serde(flatten)]
