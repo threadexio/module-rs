@@ -3,12 +3,13 @@
 //! This module contains all the machinery used to present nice and useful error
 //! messages from merge operations.
 
-use core::fmt::{self, Debug, Display};
+use core::fmt::{self, Debug, Display, Write};
 use core::iter::FusedIterator;
 use core::mem::discriminant;
 
 use alloc::boxed::Box;
 use alloc::collections::linked_list::{self, LinkedList};
+use alloc::string::ToString;
 
 /// Kind of [`Error`].
 #[non_exhaustive]
@@ -63,8 +64,8 @@ impl ErrorKind {
 impl Debug for ErrorKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Collision => write!(f, "Collision"),
-            Self::Cycle => write!(f, "Cycle"),
+            Self::Collision => f.write_str("Collision"),
+            Self::Cycle => f.write_str("Cycle"),
             Self::Custom(x) => write!(f, "Custom(\"{x}\")"),
         }
     }
@@ -73,8 +74,8 @@ impl Debug for ErrorKind {
 impl Display for ErrorKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Collision => write!(f, "value collision"),
-            Self::Cycle => write!(f, "cyclic imports"),
+            Self::Collision => f.write_str("value collision"),
+            Self::Cycle => f.write_str("cyclic imports"),
             Self::Custom(x) => x.fmt(f),
         }
     }
@@ -88,147 +89,167 @@ impl PartialEq for ErrorKind {
 
 impl Eq for ErrorKind {}
 
-type BoxedDisplay = Box<dyn Display + Send + Sync + 'static>;
-
 /// The module backtrace.
-pub struct Modules {
-    list: LinkedList<BoxedDisplay>,
+#[derive(Clone)]
+pub struct Trace {
+    modules: LinkedList<Box<str>>,
 }
 
-impl Modules {
-    /// Create a new [`Modules`].
-    pub fn new() -> Self {
+impl Debug for Trace {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_list().entries(self.modules()).finish()
+    }
+}
+
+impl<D> FromIterator<D> for Trace
+where
+    D: Display,
+{
+    fn from_iter<T: IntoIterator<Item = D>>(iter: T) -> Self {
         Self {
-            list: LinkedList::new(),
+            modules: iter
+                .into_iter()
+                .map(|x| x.to_string().into_boxed_str())
+                .collect(),
+        }
+    }
+}
+
+impl Trace {
+    /// Create a new [`Modules`].
+    pub const fn new() -> Self {
+        Self {
+            modules: LinkedList::new(),
         }
     }
 
     /// Get the number of modules in the backtrace.
     pub fn len(&self) -> usize {
-        self.list.len()
+        self.modules.len()
     }
 
     /// Check if the backtrace has any modules.
     pub fn is_empty(&self) -> bool {
-        self.len() == 0
+        self.modules.is_empty()
     }
 
-    /// Push `module`.
-    pub fn push<D>(&mut self, module: D)
+    /// Push `module` to the front.
+    pub fn push_front<D>(&mut self, module: D)
     where
-        D: Display + Send + Sync + 'static,
+        D: Display,
     {
-        self.list.push_front(Box::new(module));
+        self.modules.push_front(module.to_string().into_boxed_str());
+    }
+
+    /// Push `module` to the back.
+    pub fn push_back<D>(&mut self, module: D)
+    where
+        D: Display,
+    {
+        self.modules.push_back(module.to_string().into_boxed_str());
     }
 
     /// Get an iterator over all modules in the backtrace.
     ///
-    /// The returned iterator iterates over all modules in the reverse order
-    /// they were [`push`]ed.
-    ///
     /// # Example
     ///
     /// ```rust
-    /// # use module::merge::error::Modules;
-    /// let mut modules = Modules::new();
+    /// # use module::merge::error::Trace;
+    /// let mut trace = Trace::new();
     ///
-    /// modules.push("module 1");
-    /// modules.push("module 2");
+    /// trace.push_back("module 1");
+    /// trace.push_back("module 2");
     ///
-    /// let mut iter = modules.iter().map(|x| x.to_string());
-    /// assert_eq!(iter.next().as_deref(), Some("module 2"));
-    /// assert_eq!(iter.next().as_deref(), Some("module 1"));
+    /// let mut iter = trace.modules();
+    /// assert_eq!(iter.next(), Some("module 1"));
+    /// assert_eq!(iter.next(), Some("module 2"));
     /// assert_eq!(iter.next(), None);
     /// ```
     ///
     /// [`push`]: Modules::push
-    pub fn iter(&self) -> ModulesIter<'_> {
-        ModulesIter {
-            iter: self.list.iter(),
-        }
-    }
-}
-
-impl Debug for Modules {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_list()
-            .entries(self.list.iter().map(DisplayToDebug))
-            .finish()
+    pub fn modules(&self) -> Modules<'_> {
+        Modules(self.modules.iter())
     }
 }
 
 /// Borrowing iterator for [`Modules`].
-pub struct ModulesIter<'a> {
-    iter: linked_list::Iter<'a, BoxedDisplay>,
-}
+pub struct Modules<'a>(linked_list::Iter<'a, Box<str>>);
 
-impl Debug for ModulesIter<'_> {
+impl Debug for Modules<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("ModulesIter").finish_non_exhaustive()
+        f.debug_struct("Modules").finish_non_exhaustive()
     }
 }
 
-impl<'a> Iterator for ModulesIter<'a> {
-    type Item = &'a (dyn Display + Send + Sync + 'static);
+impl<'a> Iterator for Modules<'a> {
+    type Item = &'a str;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next().map(AsRef::as_ref)
+        self.0.next().map(|x| &**x)
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        (0, Some(self.len()))
+        self.0.size_hint()
     }
 }
 
-impl DoubleEndedIterator for ModulesIter<'_> {
+impl DoubleEndedIterator for Modules<'_> {
     fn next_back(&mut self) -> Option<Self::Item> {
-        self.iter.next_back().map(AsRef::as_ref)
+        self.0.next_back().map(|x| &**x)
     }
 }
 
-impl ExactSizeIterator for ModulesIter<'_> {
+impl ExactSizeIterator for Modules<'_> {
     fn len(&self) -> usize {
-        self.iter.len()
+        self.0.len()
     }
 }
 
-impl FusedIterator for ModulesIter<'_> {}
+impl FusedIterator for Modules<'_> {}
 
-/// The module backtrace.
+/// The value name.
+#[derive(Clone)]
 pub struct Value {
-    list: LinkedList<BoxedDisplay>,
+    components: LinkedList<Box<str>>,
 }
 
 impl Value {
     /// Create a new [`Value`].
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
-            list: LinkedList::new(),
+            components: LinkedList::new(),
         }
     }
 
     /// Get the number of components of the [`Value`].
     pub fn len(&self) -> usize {
-        self.list.len()
+        self.components.len()
     }
 
     /// Check if the [`Value`] has any components.
     pub fn is_empty(&self) -> bool {
-        self.len() == 0
+        self.components.is_empty()
     }
 
-    /// Push `component`.
-    pub fn push<D>(&mut self, component: D)
+    /// Push `component` to the front.
+    pub fn push_front<D>(&mut self, component: D)
     where
-        D: Display + Send + Sync + 'static,
+        D: Display,
     {
-        self.list.push_front(Box::new(component));
+        self.components
+            .push_front(component.to_string().into_boxed_str());
+    }
+
+    /// Push `component` to the back.
+    pub fn push_back<D>(&mut self, component: D)
+    where
+        D: Display,
+    {
+        self.components
+            .push_back(component.to_string().into_boxed_str());
     }
 
     /// Get an iterator over all components of the value.
-    ///
-    /// The returned iterator iterates over all components in the reverse order
-    /// they were [`push`]ed.
     ///
     /// # Example
     ///
@@ -236,34 +257,39 @@ impl Value {
     /// # use module::merge::error::Value;
     /// let mut value = Value::new();
     ///
-    /// value.push("value 1");
-    /// value.push("value 2");
+    /// value.push_back("value 1");
+    /// value.push_back("value 2");
     ///
-    /// let mut iter = value.components().map(|x| x.to_string());
-    /// assert_eq!(iter.next().as_deref(), Some("value 2"));
-    /// assert_eq!(iter.next().as_deref(), Some("value 1"));
+    /// let mut iter = value.components();
+    /// assert_eq!(iter.next(), Some("value 1"));
+    /// assert_eq!(iter.next(), Some("value 2"));
     /// assert_eq!(iter.next(), None);
     /// ```
-    ///
-    /// [`push`]: Modules::push
     pub fn components(&self) -> Components<'_> {
-        Components {
-            iter: self.list.iter(),
-        }
+        Components(self.components.iter())
     }
 }
 
 impl Debug for Value {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "'")?;
+        let sep = if f.align().is_some() { f.fill() } else { '.' };
 
-        let mut iter = self.components();
-        if let Some(first) = iter.next() {
-            write!(f, "{first}")?;
-            iter.try_for_each(|x| write!(f, ".{x}"))?;
+        if !f.alternate() {
+            f.write_char('\"')?;
         }
 
-        write!(f, "'")?;
+        for (i, component) in self.components().enumerate() {
+            if i > 0 {
+                f.write_char(sep)?;
+            }
+
+            f.write_str(component)?;
+        }
+
+        if !f.alternate() {
+            f.write_char('\"')?;
+        }
+
         Ok(())
     }
 }
@@ -275,37 +301,35 @@ impl Display for Value {
 }
 
 /// Borrowing iterator for [`Value`].
-pub struct Components<'a> {
-    iter: linked_list::Iter<'a, BoxedDisplay>,
-}
+pub struct Components<'a>(linked_list::Iter<'a, Box<str>>);
 
 impl Debug for Components<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("ModulesIter").finish_non_exhaustive()
+        f.debug_struct("Components").finish_non_exhaustive()
     }
 }
 
 impl<'a> Iterator for Components<'a> {
-    type Item = &'a (dyn Display + Send + Sync + 'static);
+    type Item = &'a str;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next().map(AsRef::as_ref)
+        self.0.next().map(|x| &**x)
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        (0, Some(self.len()))
+        self.0.size_hint()
     }
 }
 
 impl DoubleEndedIterator for Components<'_> {
     fn next_back(&mut self) -> Option<Self::Item> {
-        self.iter.next_back().map(AsRef::as_ref)
+        self.0.next_back().map(|x| &**x)
     }
 }
 
 impl ExactSizeIterator for Components<'_> {
     fn len(&self) -> usize {
-        self.iter.len()
+        self.0.len()
     }
 }
 
@@ -330,8 +354,24 @@ impl FusedIterator for Components<'_> {}
 ///
 /// let err = r.unwrap_err();
 ///
-/// assert_eq!(err.to_string(),
-/// r#"value collision while evaluating 'settings.count'
+/// assert_eq!(format!("{err}"),
+/// r#"value collision while evaluating "settings.count"
+///
+///     in user.json
+///   from config.json
+/// "#);
+///
+/// // without quotes...
+/// assert_eq!(format!("{err:#}"),
+/// r#"value collision while evaluating settings.count
+///
+///     in user.json
+///   from config.json
+/// "#);
+///
+/// // or with a custom separator...
+/// assert_eq!(format!("{err:/<}"),
+/// r#"value collision while evaluating "settings/count"
 ///
 ///     in user.json
 ///   from config.json
@@ -355,7 +395,7 @@ pub struct Error {
     ///
     /// This field holds information regarding the module in which the error
     /// occurred.
-    pub modules: Modules,
+    pub trace: Trace,
 
     /// Value name.
     ///
@@ -397,7 +437,7 @@ impl Error {
         Self {
             _priv: (),
             kind,
-            modules: Modules::new(),
+            trace: Trace::new(),
             value: Value::new(),
         }
     }
@@ -405,19 +445,25 @@ impl Error {
 
 impl Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.kind)?;
+        Display::fmt(&self.kind, f)?;
 
         if !self.value.is_empty() {
-            write!(f, " while evaluating {}", self.value)?;
+            f.write_str(" while evaluating ")?;
+            Display::fmt(&self.value, f)?;
         }
 
-        writeln!(f)?;
+        f.write_char('\n')?;
+        f.write_char('\n')?;
 
-        let mut modules = self.modules.iter().rev();
-        if let Some(first) = modules.next() {
-            writeln!(f)?;
-            writeln!(f, "    in {first}")?;
-            modules.try_for_each(|x| writeln!(f, "  from {x}"))?;
+        for (i, module) in self.trace.modules().rev().enumerate() {
+            if i == 0 {
+                f.write_str("    in ")?;
+            } else {
+                f.write_str("  from ")?;
+            }
+
+            f.write_str(module)?;
+            f.write_char('\n')?;
         }
 
         Ok(())
@@ -425,14 +471,3 @@ impl Display for Error {
 }
 
 impl core::error::Error for Error {}
-
-struct DisplayToDebug<T>(T);
-
-impl<T> fmt::Debug for DisplayToDebug<T>
-where
-    T: Display,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt(f)
-    }
-}

@@ -7,7 +7,7 @@ use alloc::collections::linked_list::{self, LinkedList};
 use alloc::vec::Vec;
 
 use module::Merge;
-use module::merge::error::Modules;
+use module::merge::error::Trace;
 
 use crate::Result;
 
@@ -459,7 +459,7 @@ impl<Ref, Value> Evaluator<Ref, Value> {
 
 impl<Ref, Value> Evaluator<Ref, Value>
 where
-    Ref: Clone + Display + Send + Sync + 'static,
+    Ref: Display,
 {
     /// Build the module trace for `this` module.
     ///
@@ -469,6 +469,7 @@ where
     /// # Example
     ///
     /// ```rust,no_run
+    /// # use module::merge::Context;
     /// # use module_util::evaluator::Evaluator;
     /// # fn a() -> module_util::Result<i32> {
     /// use module::Error;
@@ -481,10 +482,7 @@ where
     ///
     ///     if this == "module 2" {
     ///         return Err(Error::custom("module 2 is not allowed to be evaluated"))
-    ///             .map_err(|mut e| {
-    ///                 e.modules = evaluator.trace(this);
-    ///                 e
-    ///             });
+    ///             .with_trace(|| evaluator.trace(this));
     ///     }
     ///
     ///     // ...
@@ -498,22 +496,16 @@ where
     /// Ok(value)
     /// # }
     /// ```
-    pub fn trace(&self, this: Ref) -> Modules {
-        let mut modules = Modules::new();
-        modules.push(this);
-        self.trace
-            .iter()
-            .rev()
-            .cloned()
-            .for_each(|x| modules.push(x));
-
-        modules
+    pub fn trace(&self, this: Ref) -> Trace {
+        let mut trace: Trace = self.trace.iter().collect();
+        trace.push_back(this);
+        trace
     }
 }
 
 impl<Ref, Value> Evaluator<Ref, Value>
 where
-    Ref: Clone + Display + Send + Sync + 'static,
+    Ref: Display,
     Value: Merge,
 {
     /// Evaluate the module `this`.
@@ -531,7 +523,7 @@ where
             Some(old) => match old.merge(value) {
                 Ok(x) => Some(x),
                 Err(mut e) => {
-                    e.modules = self.trace(this);
+                    e.trace = self.trace(this);
                     return Err(e);
                 }
             },
@@ -550,10 +542,8 @@ where
 
 #[cfg(test)]
 mod tests {
-    use alloc::string::ToString;
-
-    use module::Error;
     use module::types::NoMerge;
+    use module::{Context, Error};
 
     use super::*;
 
@@ -567,10 +557,7 @@ mod tests {
         while let Some(this) = x.next() {
             let Some((_, imports, value)) = modules.iter().find(|(name, _, _)| *name == this)
             else {
-                return Err(Error::custom("no such module")).map_err(|mut e| {
-                    e.modules = x.trace(this);
-                    e
-                });
+                return Err(Error::custom("no such module")).with_trace(|| x.trace(this));
             };
 
             let imports = imports.iter().copied().collect();
@@ -598,7 +585,7 @@ mod tests {
         )
         .unwrap_err();
 
-        let trace: Vec<_> = err.modules.iter().map(|x| x.to_string()).collect();
+        let trace: Vec<_> = err.trace.modules().collect();
 
         assert_eq!(
             trace,

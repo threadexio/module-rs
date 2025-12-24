@@ -135,13 +135,13 @@ where
                 .canonicalize()
                 .map_err(Error::custom)
                 .map_err(|mut e| {
-                    e.modules = self.inner.trace(DisplayPath(path));
+                    e.trace = self.inner.trace(DisplayPath(path));
                     e
                 })?;
 
             if !self.evaluated.insert(realpath.clone()) {
                 return Err(Error::cycle()).map_err(|mut e| {
-                    e.modules = self.inner.trace(DisplayPath(realpath));
+                    e.trace = self.inner.trace(DisplayPath(realpath));
                     e
                 });
             }
@@ -149,7 +149,7 @@ where
             let Module { value, imports } = match self.format.read(&realpath) {
                 Ok(x) => x,
                 Err(mut e) => {
-                    e.modules = self.inner.trace(DisplayPath(realpath));
+                    e.trace = self.inner.trace(DisplayPath(realpath));
                     return Err(e);
                 }
             };
