@@ -2,7 +2,7 @@
     html_logo_url = "https://raw.githubusercontent.com/threadexio/module-rs/master/assets/icon.png"
 )]
 #![doc = include_str!("../README.md")]
-#![cfg_attr(module_nightly, feature(doc_auto_cfg))]
+#![cfg_attr(module_nightly, feature(doc_cfg))]
 #![forbid(unsafe_code)]
 #![no_std]
 extern crate self as module_util;

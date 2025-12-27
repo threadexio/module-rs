@@ -165,8 +165,6 @@ impl Trace {
     /// assert_eq!(iter.next(), Some("module 2"));
     /// assert_eq!(iter.next(), None);
     /// ```
-    ///
-    /// [`push`]: Modules::push
     pub fn modules(&self) -> Modules<'_> {
         Modules(self.modules.iter())
     }
