@@ -2,17 +2,9 @@ use core::cmp::Eq;
 use core::fmt::Display;
 use core::hash::{BuildHasher, Hash};
 
-use alloc::boxed::Box;
-
 use std::collections::{HashMap, HashSet};
 
 use super::prelude::*;
-
-unmergeable! {
-    Box<std::ffi::OsStr>, Box<std::path::Path>,
-    std::ffi::OsString, std::path::PathBuf,
-    std::time::SystemTime
-}
 
 impl<K, V, S> Merge for HashMap<K, V, S>
 where
@@ -30,7 +22,12 @@ where
                 }
                 Entry::Occupied(x) => {
                     let (k, a) = x.remove_entry();
-                    let merged = a.merge(b).with_value(|| format!("\"{k}\""))?;
+                    // TODO: revisit when Context::with_field is sorted out
+                    let merged = a.merge(b).map_err(|mut e| {
+                        e.field.push_front(&format!("\"{k}\""));
+                        e
+                    })?;
+
                     self.insert(k, merged);
                 }
             }

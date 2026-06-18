@@ -39,7 +39,7 @@ impl<T> Default for MergeCell<T> {
 
 impl<T> MergeCell<T> {
     /// Create a new empty [`MergeCell`].
-    pub fn empty() -> Self {
+    pub const fn empty() -> Self {
         Self {
             value: None,
             result: Ok(()),
@@ -47,7 +47,7 @@ impl<T> MergeCell<T> {
     }
 
     /// Create a new [`MergeCell`] that is initialized with `value`.
-    pub fn new(value: T) -> Self {
+    pub const fn new(value: T) -> Self {
         Self {
             value: Some(value),
             result: Ok(()),

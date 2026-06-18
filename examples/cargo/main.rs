@@ -224,15 +224,15 @@ struct Config {
 fn main() {
     let mut args = args_os().skip(1);
 
-    let config_path = args.next().unwrap_or_else(|| "config.toml".into());
+    let config_path = args
+        .next()
+        .map(PathBuf::from)
+        .unwrap_or_else(|| "config.toml".into());
 
-    let config: Config = match module_util::file::toml(&config_path) {
-        Ok(x) => x,
+    let config: Config = match module_util::file::toml([config_path]) {
+        Ok(x) => x.expect("evaluated at least one"),
         Err(e) => {
-            eprintln!(
-                "error: failed to read config `{}`: {e}",
-                config_path.to_string_lossy()
-            );
+            eprintln!("error: failed to read config: {e}",);
             return;
         }
     };

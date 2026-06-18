@@ -86,7 +86,7 @@ mod tests {
     #[test]
     fn test_option() {
         assert_eq!(
-            Some(42).merge(Some(32)).unwrap_err().kind,
+            Some(42).merge(Some(32)).unwrap_err().kind(),
             ErrorKind::Collision
         );
         assert_eq!(None.merge(Some(42)).unwrap(), Some(42));

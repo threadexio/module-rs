@@ -17,7 +17,7 @@ fn test_file_format_toml_simple() {
         items: Option<Vec<i32>>,
     }
 
-    let x: Simple = toml(path("toml/simple1.toml")).unwrap();
+    let x: Simple = toml([path("toml/simple1.toml")]).unwrap().unwrap();
     assert_eq!(x.key.as_deref(), Some("424242"));
     assert_eq!(x.items.as_deref(), Some([1, 3, 6, 0].as_slice()));
 }

@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::env::args_os;
 use std::fmt;
 use std::path::PathBuf;
 
@@ -35,10 +36,17 @@ struct Config {
 }
 
 fn main() {
-    let config: Config = match module_util::file::toml("config.toml") {
-        Ok(x) => x,
+    let mut args = args_os().skip(1);
+
+    let config_path = args
+        .next()
+        .map(PathBuf::from)
+        .unwrap_or_else(|| "config.toml".into());
+
+    let config: Config = match module_util::file::toml([config_path]) {
+        Ok(x) => x.expect("evaluated at least one"),
         Err(e) => {
-            eprintln!("{e}");
+            eprintln!("error: failed to read config: {e}");
             return;
         }
     };

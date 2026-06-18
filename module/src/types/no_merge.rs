@@ -20,7 +20,7 @@ merge_thin_wrapper! {
     ///
     /// let err = a.merge(b).unwrap_err();
     ///
-    /// assert_eq!(err.kind, ErrorKind::Collision);
+    /// assert_eq!(err.kind(), ErrorKind::Collision);
     /// ```
     ///
     /// # serde
@@ -69,7 +69,7 @@ mod tests {
         let b = NoMerge(43);
 
         let err = a.merge(b).unwrap_err();
-        assert_eq!(err.kind, ErrorKind::Collision);
+        assert_eq!(err.kind(), ErrorKind::Collision);
     }
 }
 

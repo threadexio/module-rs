@@ -160,11 +160,11 @@ impl Merge {
             });
 
             merge_fields.extend(quote! {
-                #name: #merge_base_path::merge(self.#name, _other.#name).value(#value)?,
+                #name: #merge_base_path::merge(self.#name, _other.#name).field(#value)?,
             });
 
             merge_ref_fields.extend(quote! {
-                #merge_base_path::merge_ref(&mut self.#name, _other.#name).value(#value)?;
+                #merge_base_path::merge_ref(&mut self.#name, _other.#name).field(#value)?;
             });
         }
 
