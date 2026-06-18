@@ -10,6 +10,29 @@ pub use self::field::Field;
 ///////////////////////////////////////////////////////////////////////////////
 
 /// Error returned by [`Merge`].
+///
+/// # Example
+///
+/// ```rust
+/// # use module::merge::error::Error;
+/// use std::io;
+///
+/// let mut err = Error::collision();
+/// assert_eq!(err.to_string(), "value collision");
+///
+/// err.field.push_back("user");
+/// err.field.push_back("name");
+/// err.field.push_back("first");
+/// assert_eq!(err.to_string(), "\"user.name.first\": value collision");
+///
+/// let mut err = Error::other(io::Error::other("invalid name"));
+/// assert_eq!(err.to_string(), "invalid name");
+///
+/// err.field.push_back("user");
+/// err.field.push_back("name");
+/// err.field.push_back("first");
+/// assert_eq!(err.to_string(), "\"user.name.first\": invalid name");
+/// ```
 pub struct Error {
     inner: Repr,
 
