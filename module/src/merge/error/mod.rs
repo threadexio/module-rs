@@ -39,7 +39,10 @@ impl fmt::Debug for Error {
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}: ", self.field)?;
+        if !self.field.is_empty() {
+            write!(f, "{:?}: ", self.field)?;
+        }
+
         self.message(f)?;
         Ok(())
     }
@@ -81,7 +84,31 @@ impl Error {
     ///
     /// This does not include the name of the field that caused the error.
     ///
-    /// TODO: add example for doctest
+    /// # Example
+    ///
+    /// ```rust
+    /// # use module::merge::error::Error;
+    /// use std::io;
+    /// use std::fmt;
+    ///
+    /// struct FmtMessage(Error);
+    ///
+    /// impl fmt::Display for FmtMessage {
+    ///     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    ///         self.0.message(f)
+    ///     }
+    /// }
+    ///
+    /// assert_eq!(
+    ///     FmtMessage(Error::collision()).to_string(),
+    ///     "value collision"
+    /// );
+    ///
+    /// assert_eq!(
+    ///     FmtMessage(Error::other(io::Error::other("my custom error"))).to_string(),
+    ///     "my custom error"
+    /// );
+    /// ```
     pub fn message(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.inner {
             Repr::Collision => write!(f, "value collision"),
@@ -125,5 +152,3 @@ impl Error {
         }
     }
 }
-
-///////////////////////////////////////////////////////////////////////////////
