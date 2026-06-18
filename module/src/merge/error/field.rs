@@ -67,6 +67,7 @@ impl FromStr for Field {
 
 impl Field {
     /// Create a new empty [`Field`];
+    #[must_use]
     pub const fn empty() -> Self {
         Self(String::new())
     }
@@ -74,6 +75,7 @@ impl Field {
     /// Get the number of components in the field path.
     ///
     /// See: [`Field`].
+    #[must_use]
     pub fn len(&self) -> usize {
         self.0.chars().filter(|&c| c == '.').count() + 1
     }
@@ -81,6 +83,7 @@ impl Field {
     /// Check whether the field path has any components.
     ///
     /// See: [`Field`].
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
@@ -95,6 +98,7 @@ impl Field {
     ///
     /// assert_eq!(field.as_str(), "nested.field.name");
     /// ```
+    #[must_use]
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -115,6 +119,7 @@ impl Field {
     /// assert_eq!(components.next(), Some("name"));
     /// assert_eq!(components.next(), None);
     /// ```
+    #[must_use]
     pub fn components(&self) -> Components<'_> {
         Components::new(self)
     }

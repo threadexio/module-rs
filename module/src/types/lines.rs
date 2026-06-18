@@ -41,6 +41,7 @@ pub struct Lines {
 
 impl Lines {
     /// Create a new [`Lines`] with `content`.
+    #[must_use]
     pub fn new<C>(content: C) -> Self
     where
         C: Into<String>,
@@ -51,6 +52,7 @@ impl Lines {
     }
 
     /// Destruct this wrapper.
+    #[must_use]
     pub fn into_string(self) -> String {
         self.content
     }
@@ -112,6 +114,7 @@ mod serde_impl {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 
@@ -127,6 +130,7 @@ mod tests {
 
 #[cfg(test)]
 #[cfg(feature = "serde")]
+#[allow(clippy::unwrap_used)]
 mod serde_tests {
     use super::*;
 

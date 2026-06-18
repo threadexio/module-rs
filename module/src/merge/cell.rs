@@ -39,6 +39,7 @@ impl<T> Default for MergeCell<T> {
 
 impl<T> MergeCell<T> {
     /// Create a new empty [`MergeCell`].
+    #[must_use]
     pub const fn empty() -> Self {
         Self {
             value: None,
@@ -47,6 +48,7 @@ impl<T> MergeCell<T> {
     }
 
     /// Create a new [`MergeCell`] that is initialized with `value`.
+    #[must_use]
     pub const fn new(value: T) -> Self {
         Self {
             value: Some(value),
@@ -61,6 +63,7 @@ impl<T> MergeCell<T> {
     ///
     /// [`empty()`]: MergeCell::empty
     /// [`merge()`]: MergeCell::merge
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.value.is_none()
     }
@@ -68,6 +71,7 @@ impl<T> MergeCell<T> {
     /// Check whether a previous [`merge()`] operation has failed.
     ///
     /// [`merge()`]: MergeCell::merge
+    #[must_use]
     pub fn has_errored(&self) -> bool {
         self.result.is_err()
     }

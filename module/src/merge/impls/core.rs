@@ -59,7 +59,7 @@ impl<T> Merge for core::ops::RangeTo<T> {
     unmergeable!();
 }
 
-impl<T, E> Merge for core::result::Result<T, E> {
+impl<T, E> Merge for Result<T, E> {
     unmergeable!();
 }
 
@@ -80,6 +80,7 @@ where
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use crate::test::*;
 

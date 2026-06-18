@@ -23,16 +23,19 @@ impl<T> Default for Trace<T> {
 
 impl<T> Trace<T> {
     /// Create a new empty [`Trace`].
+    #[must_use]
     pub const fn empty() -> Self {
         Self(Vec::new())
     }
 
     /// Get the number of modules in the trace.
+    #[must_use]
     pub fn len(&self) -> usize {
         self.0.len()
     }
 
     /// Check whether the trace is empty.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
@@ -41,6 +44,7 @@ impl<T> Trace<T> {
     ///
     /// The current module is always the one that was [`push`]ed last. Returns
     /// [`None`] if the trace is empty.
+    #[must_use]
     pub fn current(&self) -> Option<&T> {
         self.0.last()
     }
@@ -114,8 +118,18 @@ impl<T> Trace<T> {
     /// assert_eq!(iter.next().copied(), Some("module 3"));
     /// assert_eq!(iter.next().copied(), None);
     /// ```
+    #[must_use]
     pub fn iter(&self) -> Iter<'_, T> {
         Iter(self.0.iter())
+    }
+}
+
+impl<'a, T> IntoIterator for &'a Trace<T> {
+    type Item = &'a T;
+    type IntoIter = Iter<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
     }
 }
 
@@ -139,7 +153,7 @@ impl<'a, T> Iterator for Iter<'a, T> {
     }
 }
 
-impl<'a, T> DoubleEndedIterator for Iter<'a, T> {
+impl<T> DoubleEndedIterator for Iter<'_, T> {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.0.next_back()
     }

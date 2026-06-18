@@ -36,6 +36,7 @@ impl core::error::Error for Error {
 
 impl Error {
     /// Create new error from `error`.
+    #[must_use]
     pub fn other<E>(error: E) -> Self
     where
         E: core::error::Error + 'static,
@@ -47,11 +48,13 @@ impl Error {
     ///
     /// Equivalent to: `matches!(self, Self::Merge(_))`.
     #[inline]
+    #[must_use]
     pub fn is_merge(&self) -> bool {
         matches!(self, Self::Merge(_))
     }
 
     /// Get a reference to the inner merge error.
+    #[must_use]
     pub fn as_merge(&self) -> Option<&module::merge::Error> {
         match self {
             Self::Merge(x) => Some(x),
@@ -60,6 +63,7 @@ impl Error {
     }
 
     /// Get a mutable reference to the inner merge error.
+    #[must_use]
     pub fn as_merge_mut(&mut self) -> Option<&mut module::merge::Error> {
         match self {
             Self::Merge(x) => Some(x),
@@ -71,11 +75,13 @@ impl Error {
     ///
     /// Equivalent to: `matches!(self, Self::Other(_))`.
     #[inline]
+    #[must_use]
     pub fn is_other(&self) -> bool {
         matches!(self, Self::Other(_))
     }
 
     /// Get a reference to the inner error.
+    #[must_use]
     pub fn as_other(&self) -> Option<&(dyn core::error::Error + 'static)> {
         match self {
             Self::Other(x) => Some(&**x),
@@ -84,6 +90,7 @@ impl Error {
     }
 
     /// Get a mutable reference to the inner error.
+    #[must_use]
     pub fn as_other_mut(&mut self) -> Option<&mut (dyn core::error::Error + 'static)> {
         match self {
             Self::Other(x) => Some(&mut **x),

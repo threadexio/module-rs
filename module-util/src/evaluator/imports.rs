@@ -38,16 +38,19 @@ impl<T> FromIterator<T> for Imports<T> {
 
 impl<T> Imports<T> {
     /// Create a new empty import list.
+    #[must_use]
     pub const fn empty() -> Self {
         Self(Vec::new())
     }
 
     /// Get the number of imports in the list.
+    #[must_use]
     pub fn len(&self) -> usize {
         self.0.len()
     }
 
     /// Check whether the import list is empty.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
@@ -96,8 +99,18 @@ impl<T> Imports<T> {
     /// assert_eq!(iter.next().copied(), Some("module 3"));
     /// assert_eq!(iter.next().copied(), None);
     /// ```
+    #[must_use]
     pub fn iter(&self) -> Iter<'_, T> {
         Iter(self.0.iter())
+    }
+}
+
+impl<'a, T> IntoIterator for &'a Imports<T> {
+    type Item = &'a T;
+    type IntoIter = Iter<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
     }
 }
 
@@ -130,19 +143,19 @@ impl<'a, T> Iterator for Iter<'a, T> {
     }
 }
 
-impl<'a, T> DoubleEndedIterator for Iter<'a, T> {
+impl<T> DoubleEndedIterator for Iter<'_, T> {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.0.next_back()
     }
 }
 
-impl<'a, T> ExactSizeIterator for Iter<'a, T> {
+impl<T> ExactSizeIterator for Iter<'_, T> {
     fn len(&self) -> usize {
         self.0.len()
     }
 }
 
-impl<'a, T> FusedIterator for Iter<'a, T> {}
+impl<T> FusedIterator for Iter<'_, T> {}
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -1,3 +1,5 @@
+#![allow(clippy::unwrap_used)]
+
 #[allow(unused_imports)]
 use crate::test::*;
 
@@ -51,7 +53,7 @@ fn test_derive_merge_named() {
 #[test]
 #[cfg(feature = "derive")]
 fn test_derive_merge_rename() {
-    use alloc::string::ToString;
+    use alloc::borrow::ToOwned;
 
     #[derive(Debug, Default, Merge)]
     struct MyType(#[merge(rename = "foo")] i32);
@@ -61,7 +63,7 @@ fn test_derive_merge_rename() {
 
     let err = a.merge(b).unwrap_err();
 
-    let mut iter = err.field.components().map(|x| x.to_string());
+    let mut iter = err.field.components().map(ToOwned::to_owned);
     assert_eq!(iter.next().as_deref(), Some("foo"));
 }
 
@@ -89,13 +91,16 @@ fn test_derive_merge_skip() {
 #[test]
 #[cfg(feature = "derive")]
 fn test_derive_merge_with() {
+    #[expect(unreachable_pub)]
     mod custom {
         use super::*;
 
+        #[expect(clippy::unnecessary_wraps)]
         pub fn merge(a: i32, b: i32) -> Result<i32, Error> {
             Ok(a + b)
         }
 
+        #[expect(clippy::unnecessary_wraps)]
         pub fn merge_ref(a: &mut i32, b: i32) -> Result<(), Error> {
             *a += b;
             Ok(())

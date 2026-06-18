@@ -4,7 +4,7 @@ use syn::Token;
 use syn::parse::{Parse, ParseStream, Parser};
 use syn::punctuated::Punctuated;
 
-pub fn merge(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
+pub(crate) fn merge(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = syn::parse_macro_input!(item as syn::DeriveInput);
 
     let merge = Merge::new(input);
@@ -18,7 +18,8 @@ struct Merge {
 }
 
 impl Merge {
-    pub fn new(input: syn::DeriveInput) -> Self {
+    fn new(input: syn::DeriveInput) -> Self {
+        #[expect(clippy::panic)]
         let syn::Data::Struct(syn::DataStruct { fields, .. }) = input.data else {
             panic!("Merge can only be derived on structs");
         };
@@ -192,8 +193,7 @@ impl ToTokens for Merge {
             #header { #body }
         };
 
-        // panic!("{x}")
-        x.to_tokens(tokens)
+        x.to_tokens(tokens);
     }
 }
 
@@ -203,7 +203,7 @@ enum Fields {
 }
 
 impl Fields {
-    pub fn new(fields: syn::Fields) -> Self {
+    fn new(fields: syn::Fields) -> Self {
         let from_iter = |iter: syn::punctuated::Iter<'_, syn::Field>| {
             let x = iter
                 .into_iter()
@@ -223,7 +223,7 @@ impl Fields {
         }
     }
 
-    pub fn as_fields(&self) -> Option<&[Field]> {
+    fn as_fields(&self) -> Option<&[Field]> {
         match self {
             Self::Unit => None,
             Self::Fields(x) => Some(x),
@@ -237,7 +237,7 @@ struct Field {
 }
 
 impl Field {
-    pub fn new(i: syn::Index, field: syn::Field) -> Self {
+    fn new(i: syn::Index, field: syn::Field) -> Self {
         let attributes = Attributes::new(field.attrs);
 
         let name = match field.ident {
@@ -256,7 +256,7 @@ struct Attributes {
 }
 
 impl Attributes {
-    pub fn new(attrs: Vec<syn::Attribute>) -> Self {
+    fn new(attrs: Vec<syn::Attribute>) -> Self {
         let mut rename = None;
         let mut skip = false;
         let mut with = None;
@@ -272,7 +272,7 @@ impl Attributes {
 
             let parsed_attrs: Vec<parse::Attribute> =
                 Parser::parse2(parse::Attributes::parse_terminated, meta.tokens)
-                    .unwrap()
+                    .expect("should not fail")
                     .into_iter()
                     .collect();
 
@@ -296,7 +296,7 @@ enum FieldName {
 }
 
 impl FieldName {
-    pub fn span(&self) -> Span {
+    fn span(&self) -> Span {
         match self {
             Self::Named(x) => x.span(),
             Self::Unnamed(x) => x.span,
@@ -317,14 +317,14 @@ impl ToTokens for FieldName {
 mod parse {
     use super::*;
 
-    pub struct Rename {
+    pub(super) struct Rename {
         pub rename: kw::rename,
         pub equals: Token![=],
         pub name: syn::Expr,
     }
 
     impl Parse for Rename {
-        fn parse(input: ParseStream) -> syn::Result<Self> {
+        fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
             let rename = input.parse()?;
             let equals = input.parse()?;
             let name = input.parse()?;
@@ -337,26 +337,26 @@ mod parse {
         }
     }
 
-    pub struct Skip {
+    pub(super) struct Skip {
         pub skip: kw::skip,
     }
 
     impl Parse for Skip {
-        fn parse(input: ParseStream) -> syn::Result<Self> {
+        fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
             let skip = input.parse()?;
 
             Ok(Self { skip })
         }
     }
 
-    pub struct With {
+    pub(super) struct With {
         pub with: kw::with,
         pub equals: Token![=],
         pub path: syn::Path,
     }
 
     impl Parse for With {
-        fn parse(input: ParseStream) -> syn::Result<Self> {
+        fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
             let with = input.parse()?;
             let equals = input.parse()?;
             let path = input.parse()?;
@@ -365,7 +365,7 @@ mod parse {
         }
     }
 
-    pub enum Attribute {
+    pub(super) enum Attribute {
         Rename(Rename),
         Skip(Skip),
         With(With),
@@ -373,7 +373,7 @@ mod parse {
     }
 
     impl Parse for Attribute {
-        fn parse(input: ParseStream) -> syn::Result<Self> {
+        fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
             let lookahead = input.lookahead1();
 
             if lookahead.peek(kw::rename) {
@@ -391,7 +391,7 @@ mod parse {
         }
     }
 
-    pub type Attributes = Punctuated<Attribute, Token![,]>;
+    pub(super) type Attributes = Punctuated<Attribute, Token![,]>;
 
     mod kw {
         syn::custom_keyword!(rename);

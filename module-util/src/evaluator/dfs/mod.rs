@@ -27,6 +27,7 @@ pub struct Dfs<I, M> {
 
 impl<I, M> Dfs<I, M> {
     /// Create a new [`Dfs`] evaluator.
+    #[must_use]
     pub const fn new() -> Self {
         Self {
             imports: LinkedList::new(),

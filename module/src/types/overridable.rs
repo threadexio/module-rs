@@ -214,6 +214,7 @@ mod serde_impl {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::test::*;
@@ -261,6 +262,7 @@ mod tests {
 
 #[cfg(test)]
 #[cfg(feature = "serde")]
+#[allow(clippy::unwrap_used)]
 mod serde_tests {
     use super::*;
 

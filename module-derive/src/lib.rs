@@ -1,5 +1,4 @@
 //! Derive macros for the [`module`](https://github.com/threadexio/module-rs) crate.
-#![forbid(unsafe_code)]
 
 mod merge;
 
@@ -36,5 +35,5 @@ mod merge;
 /// newtypes.
 #[proc_macro_derive(Merge, attributes(merge))]
 pub fn merge(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    self::merge::merge(item)
+    merge::merge(item)
 }

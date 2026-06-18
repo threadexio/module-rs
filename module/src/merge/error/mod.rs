@@ -56,11 +56,13 @@ impl core::error::Error for Error {
 
 impl Error {
     /// Create a new collision error.
+    #[must_use]
     pub const fn collision() -> Self {
         Self::with_inner(Repr::Collision)
     }
 
     /// Create a new error from `error`.
+    #[must_use]
     pub fn other<E>(error: E) -> Self
     where
         E: core::error::Error + 'static,
@@ -115,6 +117,7 @@ impl Error {
     /// let err = Error::other(io::Error::other("some other error"));
     /// assert_eq!(err.kind(), ErrorKind::Other);
     /// ```
+    #[must_use]
     pub fn kind(&self) -> ErrorKind {
         match self.inner {
             Repr::Collision => ErrorKind::Collision,
