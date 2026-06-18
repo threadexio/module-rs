@@ -79,6 +79,7 @@ impl<T, F> File<T, F>
 where
     T: Merge,
     F: Format<T>,
+    F::Error: Send + Sync,
 {
     /// Read the module from the file at `path`.
     ///

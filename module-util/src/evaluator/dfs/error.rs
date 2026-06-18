@@ -19,7 +19,7 @@ pub enum Error {
     Merge(module::merge::Error),
 
     /// An error during some other operation during evaluation.
-    Other(Box<dyn core::error::Error + 'static>),
+    Other(Box<dyn core::error::Error + Send + Sync + 'static>),
 }
 
 impl fmt::Display for Error {
@@ -45,7 +45,7 @@ impl Error {
     #[must_use]
     pub fn other<E>(error: E) -> Self
     where
-        E: core::error::Error + 'static,
+        E: core::error::Error + Send + Sync + 'static,
     {
         Self::Other(Box::new(error))
     }
@@ -102,5 +102,18 @@ impl Error {
             Self::Other(x) => Some(&mut **x),
             _ => None,
         }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_send_sync() {
+        fn assert_send_sync<T: Send + Sync>() {}
+        assert_send_sync::<Error>();
     }
 }
