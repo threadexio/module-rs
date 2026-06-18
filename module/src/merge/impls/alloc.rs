@@ -73,7 +73,7 @@ where
                 }
                 Entry::Occupied(x) => {
                     let (k, a) = x.remove_entry();
-                    // TODO: revisit when Context::with_field is figured out
+
                     let merged = a.merge(b).map_err(|mut e| {
                         e.field.push_front(&format!("\"{k}\""));
                         e
