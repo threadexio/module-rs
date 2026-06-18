@@ -70,11 +70,18 @@ impl fmt::Display for Error {
             write!(f, "{:?}: ", self.field)?;
         }
 
-        self.message(f)?;
-        Ok(())
+        match self.inner {
+            Repr::Collision => write!(f, "value collision"),
+            Repr::Other(ref x) => {
+                if f.alternate() {
+                    write!(f, "other error")
+                } else {
+                    write!(f, "{x}")
+                }
+            }
+        }
     }
 }
-
 impl core::error::Error for Error {
     fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
         match self.inner {

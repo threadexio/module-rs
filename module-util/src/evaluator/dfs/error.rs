@@ -26,7 +26,13 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Merge(x) => fmt::Display::fmt(x, f),
-            Self::Other(x) => fmt::Display::fmt(&**x, f),
+            Self::Other(x) => {
+                if f.alternate() {
+                    f.write_str("other error")
+                } else {
+                    fmt::Display::fmt(x, f)
+                }
+            }
         }
     }
 }
