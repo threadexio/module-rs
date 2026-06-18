@@ -1,4 +1,6 @@
 //! [`File`] error.
+//!
+//! [`File`]: super::File
 
 use std::fmt;
 use std::path::PathBuf;
@@ -9,6 +11,8 @@ use crate::evaluator::dfs;
 ///////////////////////////////////////////////////////////////////////////////
 
 /// Error for the [`File`] evaluator.
+///
+/// [`File`]: super::File
 #[derive(Debug)]
 #[non_exhaustive]
 pub struct Error {

@@ -1,4 +1,6 @@
 //! [`Evaluator`] error.
+//!
+//! [`Evaluator`]: super::Evaluator
 
 use core::fmt;
 
@@ -7,9 +9,13 @@ use alloc::boxed::Box;
 ///////////////////////////////////////////////////////////////////////////////
 
 /// Error returned by [`Dfs`].
+///
+/// [`Dfs`]: super::Dfs
 #[derive(Debug)]
 pub enum Error {
     /// An error during the [`Merge`] operation.
+    ///
+    /// [`Merge`]: module::merge::Merge
     Merge(module::merge::Error),
 
     /// An error during some other operation during evaluation.

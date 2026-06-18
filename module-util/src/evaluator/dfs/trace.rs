@@ -12,6 +12,8 @@ use alloc::vec::Vec;
 /// A module trace is to the evaluator what [`Backtrace`] is to a program. In
 /// the trace, modules are stored in import-order. This means that the module
 /// where the error was caused is always the last one in the trace.
+///
+/// [`Backtrace`]: std::backtrace::Backtrace
 #[derive(Debug, Clone)]
 pub struct Trace<T>(Vec<T>);
 
@@ -44,6 +46,8 @@ impl<T> Trace<T> {
     ///
     /// The current module is always the one that was [`push`]ed last. Returns
     /// [`None`] if the trace is empty.
+    ///
+    /// [`push`]: Trace::push
     #[must_use]
     pub fn current(&self) -> Option<&T> {
         self.0.last()
@@ -93,6 +97,8 @@ impl<T> Trace<T> {
     /// assert_eq!(trace.pop(), Some("module 1"));
     /// assert_eq!(trace.pop(), None);
     /// ```
+    ///
+    /// [`push`]: Trace::push
     pub fn pop(&mut self) -> Option<T> {
         self.0.pop()
     }

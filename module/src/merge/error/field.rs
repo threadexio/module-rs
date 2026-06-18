@@ -27,6 +27,8 @@ use alloc::string::String;
 /// assert_eq!(format!("{field:?}"), "\"nested.field.test\"");
 /// assert_eq!(format!("{field}"), "nested.field.test");
 /// ```
+///
+/// [`Merge`]: super::super::Merge
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Field(String);
 
@@ -88,7 +90,7 @@ impl Field {
         self.0.is_empty()
     }
 
-    /// Get the field path as a [`str`].
+    /// Get the field path as a [`prim@str`].
     ///
     /// # Example
     ///

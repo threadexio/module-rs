@@ -1,4 +1,6 @@
 //! [`Merge`] error.
+//!
+//! [`Merge`]: super::Merge
 
 use core::fmt;
 
@@ -33,6 +35,8 @@ pub use self::field::Field;
 /// err.field.push_back("first");
 /// assert_eq!(err.to_string(), "\"user.name.first\": invalid name");
 /// ```
+///
+/// [`Merge`]: super::Merge
 pub struct Error {
     inner: Repr,
 
@@ -149,6 +153,8 @@ pub enum ErrorKind {
     Collision,
 
     /// An error of some other kind during the [`Merge`].
+    ///
+    /// [`Merge`]: super::Merge
     Other,
 }
 

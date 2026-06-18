@@ -27,6 +27,8 @@ pub use self::acyclic::Acyclic;
 /// An evaluator is the main mechanism with which [`Merge`] is utilized. The
 /// goal of the [`Evaluator`] is to [`Merge`] modules which may of may not
 /// import other modules.
+///
+/// [`Merge`]: module::merge::Merge
 pub trait Evaluator {
     /// Id of a module.
     ///

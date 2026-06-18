@@ -47,7 +47,8 @@ where
 {
     /// Check whether `id` was evaluated.
     ///
-    /// A module is marked as "evaluated" when [`eval()`] succeeds on it.
+    /// A module is marked as "evaluated" when [`Evaluator::eval`] succeeds
+    /// on it.
     pub fn evaluated(&self, id: &E::Id) -> bool {
         self.evaluated.contains(id)
     }
