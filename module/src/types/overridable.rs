@@ -183,19 +183,22 @@ mod serde_impl {
     use serde::de::Deserializer;
 
     #[derive(Deserialize)]
+    #[serde(rename = "Overridable")]
     #[serde(untagged)]
     enum Repr<T> {
-        Priority { value: T, priority: isize },
-        Value { value: T },
         Raw(T),
+        Priority { value: T, priority: Option<isize> },
     }
 
     impl<T, const DEFAULT: isize> From<Repr<T>> for Overridable<T, DEFAULT> {
         fn from(x: Repr<T>) -> Self {
             match x {
-                Repr::Priority { value, priority } => Overridable::with_priority(value, priority),
-                Repr::Value { value } => Overridable::new(value),
                 Repr::Raw(value) => Overridable::new(value),
+
+                Repr::Priority { value, priority } => match priority {
+                    Some(priority) => Self::with_priority(value, priority),
+                    None => Self::new(value),
+                },
             }
         }
     }

@@ -131,6 +131,7 @@ mod serde_impl {
     use serde::de::Deserializer;
 
     #[derive(Deserialize)]
+    #[serde(rename = "Order")]
     #[serde(rename_all = "lowercase")]
     enum OrderRepr {
         Before,
@@ -140,26 +141,29 @@ mod serde_impl {
     impl From<OrderRepr> for Order {
         fn from(x: OrderRepr) -> Self {
             match x {
-                OrderRepr::Before => Order::Before,
-                OrderRepr::After => Order::After,
+                OrderRepr::Before => Self::Before,
+                OrderRepr::After => Self::After,
             }
         }
     }
 
     #[derive(Deserialize)]
+    #[serde(rename = "Ordered")]
     #[serde(untagged)]
     enum Repr<T> {
-        Order { value: T, order: OrderRepr },
-        Value { value: T },
         Raw(T),
+        Order { value: T, order: Option<OrderRepr> },
     }
 
     impl<T> From<Repr<T>> for Ordered<T> {
         fn from(x: Repr<T>) -> Self {
             match x {
-                Repr::Order { value, order } => Self::with_order(value, Order::from(order)),
-                Repr::Value { value } => Ordered::new(value),
-                Repr::Raw(value) => Ordered::new(value),
+                Repr::Raw(value) => Self::new(value),
+
+                Repr::Order { value, order } => match order {
+                    Some(order) => Self::with_order(value, order.into()),
+                    None => Self::new(value),
+                },
             }
         }
     }
