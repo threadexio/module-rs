@@ -68,7 +68,7 @@ impl FromStr for Field {
 }
 
 impl Field {
-    /// Create a new empty [`Field`];
+    /// Create a new empty [`Field`].
     #[must_use]
     pub const fn empty() -> Self {
         Self(String::new())
