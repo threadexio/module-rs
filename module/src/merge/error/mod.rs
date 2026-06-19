@@ -20,20 +20,24 @@ pub use self::field::Field;
 /// use std::io;
 ///
 /// let mut err = Error::collision();
-/// assert_eq!(err.to_string(), "value collision");
+/// assert_eq!(format!("{err}"), "value collision");
+/// assert_eq!(format!("{err:#}"), "value collision");
 ///
 /// err.field.push_back("user");
 /// err.field.push_back("name");
 /// err.field.push_back("first");
-/// assert_eq!(err.to_string(), "\"user.name.first\": value collision");
+/// assert_eq!(format!("{err}"), r#""user.name.first": value collision"#);
+/// assert_eq!(format!("{err:#}"), r#""user.name.first": value collision"#);
 ///
 /// let mut err = Error::other(io::Error::other("invalid name"));
-/// assert_eq!(err.to_string(), "invalid name");
+/// assert_eq!(format!("{err}"), "invalid name");
+/// assert_eq!(format!("{err:#}"), "other error");
 ///
 /// err.field.push_back("user");
 /// err.field.push_back("name");
 /// err.field.push_back("first");
-/// assert_eq!(err.to_string(), "\"user.name.first\": invalid name");
+/// assert_eq!(format!("{err}"), r#""user.name.first": invalid name"#);
+/// assert_eq!(format!("{err:#}"), r#""user.name.first": other error"#)
 /// ```
 ///
 /// [`Merge`]: super::Merge
@@ -146,7 +150,7 @@ impl Error {
     pub fn message(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.inner {
             Repr::Collision => write!(f, "value collision"),
-            Repr::Other(ref x) => write!(f, "{x}"),
+            Repr::Other(ref x) => write!(f, "{x:#}"),
         }
     }
 }

@@ -107,16 +107,14 @@ where
 
     fn eval_one(&mut self, path: PathBuf) -> Result<(), Error> {
         let Module { imports, body } = self.format.read(&path).map_err(|e| {
-            let mut trace = self.take_trace();
+            Error::new(dfs::Error::other(e)).with_trace({
+                let mut trace = self.take_trace();
 
-            // We have to push here since the underlying evaluator has not seen
-            // this module yet.
-            trace.push(path.clone());
-
-            Error {
-                trace,
-                error: dfs::Error::other(e),
-            }
+                // We have to push here since the underlying evaluator has not seen
+                // this module yet.
+                trace.push(path.clone());
+                trace
+            })
         })?;
 
         let dirname = path
@@ -134,12 +132,7 @@ where
 
         self.evaluator
             .eval(path, imports, body)
-            .map_err(|error| Error {
-                // We don't have to push here since the underlying evaluator has
-                // seen the module and inserted it into the trace itself.
-                trace: self.take_trace(),
-                error,
-            })?;
+            .map_err(|e| Error::new(e).with_trace(self.take_trace()))?;
 
         Ok(())
     }

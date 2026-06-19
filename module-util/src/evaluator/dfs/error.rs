@@ -10,6 +10,21 @@ use alloc::boxed::Box;
 
 /// Error returned by [`Dfs`].
 ///
+/// # Example
+///
+/// ```rust
+/// # use module_util::evaluator::dfs::error::Error;
+/// use std::io;
+///
+/// let err = Error::Merge(module::merge::Error::collision());
+/// assert_eq!(format!("{err}"), "value collision");
+/// assert_eq!(format!("{err:#}"), "value collision");
+///
+/// let err = Error::other(io::Error::other("invalid data"));
+/// assert_eq!(format!("{err}"), "invalid data");
+/// assert_eq!(format!("{err:#}"), "other error");
+/// ```
+///
 /// [`Dfs`]: super::Dfs
 #[derive(Debug)]
 pub enum Error {
