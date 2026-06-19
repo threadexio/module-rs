@@ -1,18 +1,19 @@
 [package]
 name = "module-util"
-version = "0.3.1"
+version.workspace = true
 authors = ["threadexio"]
-edition = "2024"
+edition.workspace = true
+rust-version.workspace = true
 description = '''
 Utilities for working with module.
 '''
 documentation = "https://docs.rs/module-util"
 readme = "README.md"
-homepage = "https://github.com/threadexio/module-rs"
-repository = "https://github.com/threadexio/module-rs"
-license = "Apache-2.0"
-keywords = ["module", "config", "nix"]
-categories = ["command-line-utilities", "config", "no-std"]
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
 autotests = false
 
 [package.metadata.docs.rs]
@@ -21,13 +22,13 @@ rustc-args = ["--cfg", "module_nightly"]
 rustdoc-args = ["--cfg", "module_nightly"]
 
 [dependencies]
-module = { version = "0.3", default-features = false, path = "../module" }
+module = { version = "0.3.1", default-features = false, path = "../module" }
 serde = { version = "1", default-features = false, optional = true }
 serde_json = { version = "1", optional = true }
 toml = { version = "1", optional = true }
 
 [dev-dependencies]
-module = { version = "0.3", features = ["derive"], path = "../module" }
+module = { version = "0.3.1", features = ["derive"], path = "../module" }
 
 [features]
 std = []

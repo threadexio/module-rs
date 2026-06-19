@@ -1,18 +1,19 @@
 [package]
 name = "module"
-version = "0.3.1"
+version.workspace = true
 authors = ["threadexio"]
-edition = "2024"
+edition.workspace = true
+rust-version.workspace = true
 description = '''
 Modular NixOS-style configuration crate.
 '''
 documentation = "https://docs.rs/module"
 readme = "README.md"
-homepage = "https://github.com/threadexio/module-rs"
-repository = "https://github.com/threadexio/module-rs"
-license = "Apache-2.0"
-keywords = ["module", "config", "nix"]
-categories = ["command-line-utilities", "config", "no-std"]
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
 
 [package.metadata.docs.rs]
 all-features = true
@@ -20,7 +21,7 @@ rustc-args = ["--cfg", "module_nightly"]
 rustdoc-args = ["--cfg", "module_nightly"]
 
 [dependencies]
-module-derive = { version = "0.1", path = "../module-derive", optional = true }
+module-derive = { version = "0.3.1", path = "../module-derive", optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
 
 [dev-dependencies]

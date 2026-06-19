@@ -8,6 +8,16 @@ members = [
   "examples",
 ]
 
+[workspace.package]
+version = "0.3.1"
+edition = "2024"
+rust-version = "1.85.1"
+homepage = "https://github.com/threadexio/module-rs"
+repository = "https://github.com/threadexio/module-rs"
+license = "Apache-2.0"
+keywords = ["module", "config", "nix"]
+categories = ["command-line-utilities", "config", "no-std"]
+
 [workspace.lints.rust]
 unsafe_code = "forbid"
 rust_2018_idioms = { level = "warn", priority = -1 }

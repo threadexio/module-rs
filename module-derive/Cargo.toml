@@ -1,13 +1,18 @@
 [package]
 name = "module-derive"
-version = "0.1.0"
-edition = "2024"
+version.workspace = true
+authors = ["threadexio"]
+edition.workspace = true
+rust-version.workspace = true
 description = '''
 Derive macros for the `module` crate.
 '''
-homepage = "https://github.com/threadexio/module-rs"
-repository = "https://github.com/threadexio/module-rs"
-license = "Apache-2.0"
+documentation = "https://docs.rs/module-derive"
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
 
 [lib]
 proc-macro = true
