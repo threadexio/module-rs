@@ -197,11 +197,15 @@ pub struct Components<'a>(str::Split<'a, char>);
 
 impl fmt::Debug for Components<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_tuple("Components")
-            .field(&fmt::from_fn(|f| {
-                f.debug_list().entries(self.clone()).finish()
-            }))
-            .finish()
+        struct AsList<'a, 'b>(&'a Components<'b>);
+
+        impl fmt::Debug for AsList<'_, '_> {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                f.debug_list().entries(self.0.clone()).finish()
+            }
+        }
+
+        f.debug_tuple("Components").field(&AsList(self)).finish()
     }
 }
 

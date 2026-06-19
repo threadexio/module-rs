@@ -55,14 +55,19 @@ enum Repr {
 
 impl fmt::Debug for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Error")
-            .field(
-                "kind",
-                &fmt::from_fn(|f| match self.inner {
+        struct Kind<'a>(&'a Repr);
+
+        impl fmt::Debug for Kind<'_> {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                match self.0 {
                     Repr::Collision => write!(f, "Collision"),
-                    Repr::Other(ref x) => f.debug_tuple("Other").field(&x).finish(),
-                }),
-            )
+                    Repr::Other(x) => f.debug_tuple("Other").field(&x).finish(),
+                }
+            }
+        }
+
+        f.debug_struct("Error")
+            .field("kind", &Kind(&self.inner))
             .field("field", &self.field)
             .finish()
     }
