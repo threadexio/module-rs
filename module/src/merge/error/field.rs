@@ -52,7 +52,9 @@ where
         let mut inner = String::new();
 
         for component in iter {
-            push_back_component(&mut inner, component.as_ref());
+            let component = component.as_ref();
+            let component = component.trim_matches('.');
+            push_back_component(&mut inner, component);
         }
 
         Self(inner)
