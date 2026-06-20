@@ -5,13 +5,10 @@ use alloc::vec::Vec;
 
 use module::merge::Merge;
 
-use super::{Evaluator, Imports};
+use super::{Evaluator, Imports, Trace};
 
 pub mod error;
 pub use self::error::Error;
-
-pub mod trace;
-pub use self::trace::Trace;
 
 ///////////////////////////////////////////////////////////////////////////////
 

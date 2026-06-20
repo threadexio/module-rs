@@ -61,7 +61,7 @@ impl<T> Trace<T> {
     /// # Example
     ///
     /// ```rust
-    /// # use module_util::evaluator::dfs::Trace;
+    /// # use module_util::evaluator::trace::Trace;
     /// let mut trace = Trace::empty();
     /// trace.push("module 1");
     /// trace.push("module 2");
@@ -86,7 +86,7 @@ impl<T> Trace<T> {
     ///
     /// # Example
     /// ```rust
-    /// # use module_util::evaluator::dfs::Trace;
+    /// # use module_util::evaluator::trace::Trace;
     /// let mut trace = Trace::empty();
     /// trace.push("module 1");
     /// trace.push("module 2");
@@ -112,7 +112,7 @@ impl<T> Trace<T> {
     /// # Example
     ///
     /// ```rust
-    /// # use module_util::evaluator::dfs::Trace;
+    /// # use module_util::evaluator::trace::Trace;
     /// let mut trace = Trace::empty();
     /// trace.push("module 1");
     /// trace.push("module 2");

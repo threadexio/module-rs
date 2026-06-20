@@ -6,6 +6,7 @@ use std::fmt;
 use std::path::PathBuf;
 use std::string::ToString;
 
+use crate::evaluator::Trace;
 use crate::evaluator::dfs;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -86,12 +87,12 @@ use crate::evaluator::dfs;
 ///
 /// ```rust
 /// # use module_util::file::error::Error;
-/// use module_util::evaluator::dfs;
+/// use module_util::evaluator::{dfs, Trace};
 /// use std::io;
 ///
 /// let err = Error::new(dfs::Error::other(io::Error::other("some other error")))
 ///     .with_trace({
-///         let mut t = dfs::Trace::empty();
+///         let mut t = Trace::empty();
 ///         t.push("module 1".into());
 ///         t.push("module 2".into());
 ///         t.push("module 3".into());
@@ -118,7 +119,7 @@ pub struct Error {
     pub error: dfs::Error,
 
     /// Module trace.
-    pub trace: dfs::Trace<PathBuf>,
+    pub trace: Trace<PathBuf>,
 }
 
 impl fmt::Debug for Error {
@@ -170,13 +171,13 @@ impl Error {
         Self {
             _priv: (),
             error,
-            trace: dfs::Trace::empty(),
+            trace: Trace::empty(),
         }
     }
 
     /// Set the `trace` of the error.
     #[must_use]
-    pub fn with_trace(mut self, trace: dfs::Trace<PathBuf>) -> Self {
+    pub fn with_trace(mut self, trace: Trace<PathBuf>) -> Self {
         self.trace = trace;
         self
     }

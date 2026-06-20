@@ -7,6 +7,9 @@
 pub mod imports;
 pub use self::imports::Imports;
 
+pub mod trace;
+pub use self::trace::Trace;
+
 pub mod dfs;
 pub use self::dfs::Dfs;
 

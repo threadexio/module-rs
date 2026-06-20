@@ -8,7 +8,7 @@ use module::merge::Merge;
 use serde::Deserialize;
 
 use crate::evaluator::dfs;
-use crate::evaluator::{Acyclic, Dfs, Evaluator, Imports};
+use crate::evaluator::{Acyclic, Dfs, Evaluator, Imports, Trace};
 
 pub mod format;
 pub use self::format::{Format, Module};
@@ -28,7 +28,7 @@ pub use self::error::Error;
 /// ```rust,no_run
 /// # use std::path::PathBuf;
 /// # use module_util::file::{File, format};
-/// #[derive(Debug, serde::Deserialize, module::Merge)]
+/// #[derive(Debug, PartialEq, Eq, serde::Deserialize, module::Merge)]
 /// struct MyModule {
 ///     a: Option<i32>,
 ///     b: Option<Vec<usize>>,
@@ -39,7 +39,10 @@ pub use self::error::Error;
 /// file.read(PathBuf::from("./module1.json")).unwrap();
 /// file.read(PathBuf::from("./module2.json")).unwrap();
 ///
-/// assert!(file.finish().is_some());
+/// assert_eq!(file.finish(), Some(MyModule {
+///     a: Some(42),
+///     b: Some(vec![0, 1, 2, 3])
+/// }));
 /// ```
 #[derive(Debug)]
 pub struct File<T, F>
@@ -145,7 +148,7 @@ where
         Ok(())
     }
 
-    fn take_trace(&mut self) -> dfs::Trace<PathBuf> {
+    fn take_trace(&mut self) -> Trace<PathBuf> {
         let dfs = self.evaluator.get_mut();
         take(&mut dfs.trace)
     }
