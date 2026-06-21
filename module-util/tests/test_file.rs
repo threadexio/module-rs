@@ -1,4 +1,4 @@
-#![allow(missing_docs)]
+#![allow(missing_docs, clippy::unwrap_used)]
 
 use module::Merge;
 use module::types::Overridable;
@@ -60,4 +60,22 @@ fn test_file_cycle2() {
     struct Cycle;
 
     let _: Cycle = json([path("json/cycle2.json")]).unwrap().unwrap();
+}
+
+#[test]
+fn test_file_error_trace() {
+    #[derive(Debug, Deserialize, Merge)]
+    struct Module;
+
+    let err = json::<Module, _>([path("json/nonexistent.json")]).unwrap_err();
+    assert_eq!(Vec::from(err.trace), &[path("json/nonexistent.json")]);
+
+    let err = json::<Module, _>([path("json/nonexistent1.json")]).unwrap_err();
+    assert_eq!(
+        Vec::from(err.trace),
+        &[
+            path("json/nonexistent1.json"),
+            path("json/nonexistent2.json")
+        ]
+    );
 }

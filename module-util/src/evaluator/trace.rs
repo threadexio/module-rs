@@ -23,6 +23,18 @@ impl<T> Default for Trace<T> {
     }
 }
 
+impl<T> From<Vec<T>> for Trace<T> {
+    fn from(x: Vec<T>) -> Self {
+        Self(x)
+    }
+}
+
+impl<T> From<Trace<T>> for Vec<T> {
+    fn from(x: Trace<T>) -> Self {
+        x.0
+    }
+}
+
 impl<T> Trace<T> {
     /// Create a new empty [`Trace`].
     #[must_use]
